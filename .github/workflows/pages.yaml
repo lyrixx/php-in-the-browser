@@ -1,0 +1,65 @@
+name: Pages
+
+# Builds the PHP of the slides, checks that it boots and runs their code, then
+# deploys public/ to GitHub Pages. Nothing is deployed if PHP does not answer.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and the one in progress is not cancelled
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+defaults:
+  run:
+    # pipefail, unlike the default shell
+    shell: bash
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: castor-php/setup-castor@v1
+
+      # The cache needs the docker-container driver of buildx…
+      - uses: docker/setup-buildx-action@v4
+
+      # …and the runtime token and URLs of GitHub Actions, that only actions get
+      - uses: crazy-max/ghaction-github-runtime@v4
+
+      # The checks run on node, with the version php-wasm-builder is made for
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      # The layers (emsdk, PHP, the libraries…) are cached: a push that does
+      # not change wasm_stack() compiles nothing
+      - name: Build
+        run: castor wasm:build --set '*.cache-from=type=gha' --set '*.cache-to=type=gha,mode=max,ignore-error=true'
+
+      - name: Check
+        run: castor wasm:smoke
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+
+      - id: deployment
+        uses: actions/deploy-pages@v5

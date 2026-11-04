@@ -1,0 +1,1365 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PHP dans le navigateur · php-wasm-builder</title>
+    <meta name="description" content="Compiler l'interpréteur PHP en WebAssembly, et s'en servir pour de vrai.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐘%3C/text%3E%3C/svg%3E">
+    <link rel="preload" href="fonts/unbounded.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/figtree.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/deck.css">
+    <link rel="stylesheet" href="css/slides.css">
+</head>
+<body>
+<main class="deck">
+
+<!-- ============================================================ INTRO -->
+
+<section class="slide s-title" id="title" data-chrome="none" data-title="Titre" data-title-en="Title" data-time="0">
+    <div class="blob" style="--c: var(--yellow); --size: 760px; right: -170px; top: -250px"></div>
+    <div class="blob" style="--c: var(--pink); --size: 280px; right: 470px; bottom: -150px; opacity: .5"></div>
+    <div class="dots" style="--c: var(--violet); --size: 600px; left: -230px; bottom: -280px"></div>
+
+    <p class="kicker"><span lang="fr">Pas de serveur. Juste une page.</span><span lang="en">No server. Just a page.</span></p>
+    <h1 class="title-main"><span class="riso">PHP</span><span class="title-rest"><span lang="fr">dans le<br>navigateur</span><span lang="en">in the<br>browser</span></span></h1>
+    <p class="lead title-lead"><span lang="fr">Compiler l'interpréteur PHP en WebAssembly, et s'en servir pour de vrai.</span><span lang="en">Compiling the PHP interpreter to WebAssembly, and using it for real.</span></p>
+    <p class="title-speaker"><strong>Grégoire Pineau</strong> · @lyrixx · JoliCode</p>
+
+    <div class="title-art">
+        <span class="title-elephant">🐘</span>
+        <span class="wasm-logo" style="--size: 250px">WA</span>
+    </div>
+    <div class="title-live"><span class="php-status"><span lang="fr">PHP démarre…</span><span lang="en">PHP is starting…</span></span></div>
+    <button class="lang-hint" type="button" data-switch-lang><kbd>L</kbd><span lang="fr">English version</span><span lang="en">version française</span></button>
+
+    <aside class="notes" lang="fr">
+        Bonjour ! 20 minutes pour comprendre comment on fait tourner PHP dans un navigateur.
+        Le badge en bas à droite : ce deck exécute VRAIMENT PHP, en ce moment, dans cette page.
+        On s'en servira plusieurs fois pendant le talk.
+    </aside>
+    <aside class="notes" lang="en">
+        Hello! 20 minutes to understand how PHP runs in a browser.
+        The badge at the bottom right: this deck REALLY runs PHP, right now, in this page.
+        We will use it several times during the talk.
+    </aside>
+</section>
+
+<section class="slide" id="where" data-title="Où tourne PHP ?" data-title-en="Where does PHP run?">
+    <h2><span lang="fr">Où tourne PHP ?</span><span lang="en">Where does PHP run?</span></h2>
+    <div class="where-scene">
+        <div class="browser" data-states="2:files">
+            <div class="browser__bar"><i></i><i></i><i></i><span><span lang="fr">mon-site.fr</span><span lang="en">my-site.com</span></span></div>
+            <div class="browser__body">
+                <span class="browser__page">📄</span>
+                <span class="browser__files">
+                    <span class="file"><span class="file__icon" style="--c: #e9e2ff"><span class="wasm-logo" style="--size: 58px">WA</span></span>php-web.wasm</span>
+                    <span class="file"><span class="file__icon" style="--c: #fff3c4">JS</span>php-web.mjs</span>
+                </span>
+            </div>
+        </div>
+        <div class="wire" data-dim="1">
+            <span class="wire__label wire__label--req">GET /page.php →</span>
+            <span class="wire__line"></span>
+            <span class="packet packet--req"></span>
+            <span class="packet packet--res"></span>
+            <span class="wire__label wire__label--res">← &lt;html&gt;…</span>
+        </div>
+        <div class="server" data-dim="1">
+            <div class="server__rack"><i></i><i></i><i></i></div>
+            <span class="server__name"><span lang="fr">serveur</span><span lang="en">server</span></span>
+        </div>
+        <span class="where-cross" data-step="1" data-anim="pop">✕</span>
+        <span class="where-elephant">🐘</span>
+    </div>
+    <div class="swap bottom">
+        <p class="lead" data-until="1"><span lang="fr">Le navigateur demande. Le serveur exécute PHP, et renvoie du HTML.</span><span lang="en">The browser asks. The server runs PHP, and sends back HTML.</span></p>
+        <p class="lead" data-step="1" data-until="2"><span lang="fr">Et si PHP tournait <strong>dans la page</strong>, sans serveur ?</span><span lang="en">What if PHP ran <strong>in the page</strong>, with no server?</span></p>
+        <p class="lead" data-step="2"><span lang="fr">Deux fichiers statiques, servis comme une image. <strong>C'est tout.</strong></span><span lang="en">Two static files, served like an image. <strong>That's all.</strong></span></p>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Le modèle qu'on connaît tous : requête HTTP, PHP s'exécute sur le serveur, renvoie du HTML.
+        [→] Et si on mettait l'éléphant directement dans le navigateur ?
+        [→] Concrètement : un .wasm et un .js, sur un hébergement statique.
+    </aside>
+    <aside class="notes" lang="en">
+        The model we all know: an HTTP request, PHP runs on the server, sends back HTML.
+        [→] What if we put the elephant right in the browser?
+        [→] In practice: a .wasm and a .js, on static hosting.
+    </aside>
+</section>
+
+<section class="slide" id="live" data-title="Ça existe déjà" data-title-en="It already exists">
+    <h2><span lang="fr">Ça tourne <span class="riso">déjà</span></span><span lang="en">It <span class="riso">already</span> runs</span></h2>
+    <div class="grid cols-2 live-grid">
+        <div class="card" style="--c: var(--yellow)">
+            <span class="emoji">🐘</span>
+            <h3>emoji-converter</h3>
+            <p class="mono small">jolicode.github.io/emoji-converter</p>
+            <p><span lang="fr">La lib PHP de JoliCode, dans la page.</span><span lang="en">The PHP lib of JoliCode, in the page.</span></p>
+        </div>
+        <div class="card" style="--c: var(--pink)" data-step="1" data-anim="pop">
+            <span class="emoji">🔍</span>
+            <h3>composer-diff</h3>
+            <p class="mono small">lyrixx.github.io/composer-diff</p>
+            <p><span lang="fr">Compare deux <code>composer.lock</code>.</span><span lang="en">Compares two <code>composer.lock</code>.</span></p>
+        </div>
+        <div class="card" style="--c: var(--green)" data-step="2" data-anim="pop">
+            <span class="emoji">✍️</span>
+            <h3>JoliTypo</h3>
+            <p class="mono small">jolitypo.jolicode.com</p>
+            <p><span lang="fr">Corrige la microtypographie d'un texte.</span><span lang="en">Fixes the microtypography of a text.</span></p>
+        </div>
+        <div class="card" style="--c: var(--violet)" data-step="3" data-anim="pop">
+            <span class="emoji">📘</span>
+            <h3>php.net</h3>
+            <p class="mono small">php.net/manual · <span class="hl-orange"><span lang="fr">pas sur GitHub Pages</span><span lang="en">not on GitHub Pages</span></span></p>
+            <p><span lang="fr">Les exemples s'exécutent dans la page.</span><span lang="en">The examples run in the page.</span></p>
+        </div>
+    </div>
+    <p class="sticker live-sticker" data-step="4" data-anim="pop"><span lang="fr">Les trois premiers sur GitHub Pages : zéro serveur PHP</span><span lang="en">The first three on GitHub Pages: zero PHP server</span></p>
+
+    <aside class="notes" lang="fr">
+        Ce n'est pas un jouet : ces pages tournent avec ce builder.
+        emoji-converter, composer-diff, JoliTypo : du code PHP existant, réutilisé tel quel.
+        La doc php.net : le builder d'origine, de Derick Rethans pour la PHP Foundation, fabrique ses .wasm. Elle n'est pas sur GitHub Pages, mais ses exemples tournent dans la page.
+        [→] Les trois premiers sont hébergés sur GitHub Pages : du statique, aucun serveur PHP.
+    </aside>
+    <aside class="notes" lang="en">
+        It is not a toy: these pages run with this builder.
+        emoji-converter, composer-diff, JoliTypo: existing PHP code, reused as is.
+        The php.net docs: the original builder, by Derick Rethans for the PHP Foundation, makes its .wasm. They are not on GitHub Pages, but their examples run in the page.
+        [→] The first three are hosted on GitHub Pages: static files, no PHP server.
+    </aside>
+</section>
+
+<section class="slide" id="why" data-title="Pourquoi ?" data-title-en="Why?">
+    <h2><span lang="fr">Pourquoi faire ça ?</span><span lang="en">Why do that?</span></h2>
+    <div class="grid cols-4 why-grid">
+        <div class="card" style="--c: var(--pink)" data-step="0">
+            <span class="emoji">♻️</span>
+            <h3><span lang="fr">Réutiliser</span><span lang="en">Reuse</span></h3>
+            <p><span lang="fr">Une lib PHP qui marche : pas de réécriture en JS.</span><span lang="en">A PHP lib that works: no rewrite in JS.</span></p>
+        </div>
+        <div class="card" style="--c: var(--yellow)" data-step="1" data-anim="up">
+            <span class="emoji">🔒</span>
+            <h3><span lang="fr">Rien ne sort</span><span lang="en">Nothing leaves</span></h3>
+            <p><span lang="fr">Les données restent dans le navigateur.</span><span lang="en">The data stays in the browser.</span></p>
+        </div>
+        <div class="card" style="--c: var(--green)" data-step="2" data-anim="up">
+            <span class="emoji">💸</span>
+            <h3><span lang="fr">Gratuit</span><span lang="en">Free</span></h3>
+            <p><span lang="fr">Un hébergement statique. Rien à maintenir.</span><span lang="en">Static hosting. Nothing to maintain.</span></p>
+        </div>
+        <div class="card" style="--c: var(--violet)" data-step="3" data-anim="up">
+            <span class="emoji">🎓</span>
+            <h3><span lang="fr">Montrer</span><span lang="en">Show</span></h3>
+            <p><span lang="fr">Playgrounds, docs, démos interactives.</span><span lang="en">Playgrounds, docs, interactive demos.</span></p>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Quatre raisons. Réutiliser du code PHP existant sans le porter en JS.
+        La confidentialité : un composer.lock, un texte, rien ne part sur un serveur.
+        Le coût : GitHub Pages, gratuit, pas de serveur à patcher.
+        La pédagogie : la doc PHP qui exécute ses exemples.
+    </aside>
+    <aside class="notes" lang="en">
+        Four reasons. Reuse existing PHP code without porting it to JS.
+        Privacy: a composer.lock, a text, nothing goes to a server.
+        Cost: GitHub Pages, free, no server to patch.
+        Teaching: the PHP docs that run their examples.
+    </aside>
+</section>
+
+<section class="slide" id="plan" data-chrome="none" data-title="Le voyage" data-title-en="The journey">
+    <div class="dots" style="--c: var(--yellow); --size: 640px; right: -200px; top: -260px"></div>
+    <p class="kicker"><span lang="fr">Le voyage</span><span lang="en">The journey</span></p>
+    <h2><span lang="fr">De <code class="big-code">php-src</code> à votre page</span><span lang="en">From <code class="big-code">php-src</code> to your page</span></h2>
+    <ol class="journey">
+        <li style="--c: var(--violet)"><b>01</b><span>WebAssembly</span><small><span lang="fr">le CPU qui n'existe pas</span><span lang="en">the CPU that does not exist</span></small></li>
+        <li style="--c: var(--pink)"><b>02</b><span><span lang="fr">PHP, du C</span><span lang="en">PHP, in C</span></span><small><span lang="fr">et sa prise : la SAPI</span><span lang="en">and its plug: the SAPI</span></small></li>
+        <li style="--c: var(--yellow)"><b>03</b><span><span lang="fr">Compiler</span><span lang="en">Compile</span></span><small>Emscripten, Docker</small></li>
+        <li style="--c: var(--green)"><b>04</b><span><span lang="fr">Brancher</span><span lang="en">Connect</span></span><small><span lang="fr">JS ↔ PHP, octet par octet</span><span lang="en">JS ↔ PHP, byte by byte</span></small></li>
+        <li style="--c: var(--blue)"><b>05</b><span><span lang="fr">Livrer</span><span lang="en">Ship</span></span><small><span lang="fr">embarquer, tester, déployer</span><span lang="en">embed, test, deploy</span></small></li>
+    </ol>
+    <p class="lead plan-lead"><span lang="fr">🐘 L'éléphant en bas de l'écran vous dit où on en est.</span><span lang="en">🐘 The elephant at the bottom of the screen tells you where we are.</span></p>
+
+    <aside class="notes" lang="fr">
+        Le plan, en cinq stations. On part de zéro : qu'est-ce que WebAssembly ?
+        Puis PHP lui-même, sa compilation, comment JS lui parle, et comment on livre tout ça.
+    </aside>
+    <aside class="notes" lang="en">
+        The plan, in five stations. We start from scratch: what is WebAssembly?
+        Then PHP itself, its compilation, how JS talks to it, and how we ship all that.
+    </aside>
+</section>
+
+<!-- ============================================================ 01 WEBASSEMBLY -->
+
+<section class="slide chapter" id="ch1" data-chrome="none" data-station="WebAssembly" data-time="2" style="--bg: var(--violet)">
+    <div class="chapter__num riso">01</div>
+    <h2 class="chapter__title"><span lang="fr">WebAssembly,<br>c'est quoi ?</span><span lang="en">WebAssembly,<br>what is it?</span></h2>
+    <p class="chapter__sub"><span lang="fr">Le CPU qui n'existe pas</span><span lang="en">The CPU that does not exist</span></p>
+    <aside class="notes" lang="fr">Chapitre 1 : les bases. Pas besoin de connaître WASM pour suivre.</aside>
+    <aside class="notes" lang="en">Chapter 1: the basics. No need to know WASM to follow.</aside>
+</section>
+
+<section class="slide" id="cpu" data-title="Un CPU ne parle qu'une langue" data-title-en="A CPU speaks one language">
+    <h2><span lang="fr">Un CPU ne parle qu'<span class="hl-pink">une</span> langue</span><span lang="en">A CPU speaks <span class="hl-pink">one</span> language</span></h2>
+    <div class="cpu">
+        <div>
+            <div class="code-label">add.c</div>
+            <pre data-lang="c">
+                int add(int a, int b)
+                {
+                    return a + b;
+                }
+            </pre>
+        </div>
+        <div class="cpu__rows">
+            <div class="cpu__row" data-step="1" data-anim="left">
+                <span class="pill">gcc → x86-64</span>
+                <span class="cpu__bin"><code class="bytes">8d 04 37 c3</code><small>lea eax, [rdi+rsi] · ret</small></span>
+                <span class="cpu__device">💻 <small>Intel, AMD</small></span>
+                <span class="verdict ok">✓</span>
+            </div>
+            <div class="cpu__row" data-step="2" data-anim="left">
+                <span class="pill">gcc → ARM64</span>
+                <span class="cpu__bin"><code class="bytes">00 00 01 0b c0 03 5f d6</code><small>add w0, w0, w1 · ret</small></span>
+                <span class="cpu__device">📱 <small><span lang="fr">téléphone, Mac M</span><span lang="en">phone, Apple M</span></small></span>
+                <span class="verdict ok">✓</span>
+            </div>
+            <div class="cpu__row cpu__row--ko" data-step="3" data-anim="pop">
+                <span class="pill"><span lang="fr">x86-64 sur ARM ?</span><span lang="en">x86-64 on ARM?</span></span>
+                <span class="cpu__bin"><code class="bytes">8d 04 37 c3</code><small><span lang="fr">« connais pas »</span><span lang="en">“never heard of it”</span></small></span>
+                <span class="cpu__device">📱</span>
+                <span class="verdict ko">✗</span>
+            </div>
+        </div>
+    </div>
+    <p class="punch bottom" data-step="3" data-anim="up"><span lang="fr">Un binaire par CPU. Et par OS.</span><span lang="en">One binary per CPU. And per OS.</span></p>
+
+    <aside class="notes" lang="fr">
+        Le même code C, compilé pour x86 : 4 octets. Pour ARM : 8 octets, totalement différents.
+        Le binaire x86 ne veut rien dire pour un processeur ARM.
+        C'est pour ça qu'on télécharge « la version Mac M1 » ou « la version Linux x86 ».
+    </aside>
+    <aside class="notes" lang="en">
+        The same C code, compiled for x86: 4 bytes. For ARM: 8 bytes, completely different.
+        The x86 binary means nothing to an ARM processor.
+        That is why we download "the Mac M1 version" or "the Linux x86 version".
+    </aside>
+</section>
+
+<section class="slide" id="vcpu" data-title="Le CPU qui n'existe pas" data-title-en="The CPU that does not exist">
+    <h2><span lang="fr">WebAssembly : un CPU <span class="riso">imaginaire</span></span><span lang="en">WebAssembly: an <span class="riso">imaginary</span> CPU</span></h2>
+    <div class="vcpu">
+        <div class="vcpu__src">
+            <div class="code-label">add.c</div>
+            <pre data-lang="c" class="tiny">
+                int add(int a, int b)
+                {
+                    return a + b;
+                }
+            </pre>
+        </div>
+        <div class="vcpu__arrow"><span class="pill">emcc</span><span class="arrow">→</span></div>
+        <div class="vcpu__cube">
+            <span class="wasm-logo" style="--size: 150px">WA</span>
+            <code class="bytes">20 00 20 01 6a 0b</code>
+        </div>
+        <svg class="vcpu__fan" width="220" height="420" viewBox="0 0 220 420" aria-hidden="true">
+            <path data-step="1" d="M0 210 C 110 210, 110 52, 220 52"/>
+            <path data-step="1" d="M0 210 C 110 210, 110 157, 220 157"/>
+            <path data-step="1" d="M0 210 C 110 210, 110 262, 220 262"/>
+            <path data-step="1" d="M0 210 C 110 210, 110 367, 220 367"/>
+        </svg>
+        <ul class="vcpu__targets">
+            <li data-step="1" data-anim="left">💻 <span>x86-64</span> <b>✓</b></li>
+            <li data-step="1" data-anim="left">📱 <span>ARM</span> <b>✓</b></li>
+            <li data-step="1" data-anim="left">🍏 <span>Apple M</span> <b>✓</b></li>
+            <li data-step="1" data-anim="left">🖥️ <span><span lang="fr">node, serveur</span><span lang="en">node, server</span></span> <b>✓</b></li>
+        </ul>
+    </div>
+    <p class="lead" data-step="2" data-anim="up"><span lang="fr">Au chargement, le navigateur traduit le <code>.wasm</code> dans la langue de <strong>votre</strong> CPU.</span><span lang="en">On load, the browser translates the <code>.wasm</code> into the language of <strong>your</strong> CPU.</span></p>
+    <div class="chips bottom" data-step="3" data-anim="up">
+        <span class="pill"><span lang="fr">standard W3C, 2019</span><span lang="en">W3C standard, 2019</span></span>
+        <span class="pill"><span lang="fr">tous les navigateurs depuis 2017</span><span lang="en">every browser since 2017</span></span>
+        <span class="pill">node, Deno, Bun, wasmtime…</span>
+    </div>
+
+    <aside class="notes" lang="fr">
+        WebAssembly, c'est un jeu d'instructions pour un processeur qui n'existe pas.
+        On compile UNE fois, pour ce CPU imaginaire.
+        [→] Et chaque machine traduit au chargement vers son vrai CPU : x86, ARM…
+        [→] C'est un standard du W3C, dans tous les navigateurs, et aussi hors navigateur.
+    </aside>
+    <aside class="notes" lang="en">
+        WebAssembly is an instruction set for a processor that does not exist.
+        We compile ONCE, for this imaginary CPU.
+        [→] And each machine translates it on load to its real CPU: x86, ARM…
+        [→] It is a W3C standard, in every browser, and outside the browser too.
+    </aside>
+</section>
+
+<section class="slide" id="wat" data-title="À quoi ça ressemble ?" data-title-en="What does it look like?">
+    <h2><span lang="fr">À quoi ça ressemble ?</span><span lang="en">What does it look like?</span></h2>
+    <div class="wat">
+        <div>
+            <div class="code-label">add.c</div>
+<pre class="small">int add(int a, int b)
+{
+    return <span class="m m1">a</span> <span class="m m3">+</span> <span class="m m2">b</span>;
+<span class="m m4">}</span></pre>
+        </div>
+        <div data-step="1" data-anim="up">
+            <div class="code-label"><span lang="fr">add.wat · le texte</span><span lang="en">add.wat · the text</span></div>
+<pre class="small"><span class="tok-k">(module</span>
+  <span class="tok-k">(func</span> <span class="tok-k">(export</span> <span class="tok-s">"add"</span>)
+    <span class="tok-k">(param</span> <span class="tok-t">i32 i32</span>)
+    <span class="tok-k">(result</span> <span class="tok-t">i32</span>)
+    <span class="m m1">local.get 0</span>
+    <span class="m m2">local.get 1</span>
+    <span class="m m3">i32.add</span>
+  <span class="m m4">)</span>)</pre>
+        </div>
+        <div data-step="2" data-anim="up">
+            <div class="code-label">add.wasm</div>
+<pre class="small"><span class="tok-c">…</span>
+<span class="m m1">20 00</span>
+<span class="m m2">20 01</span>
+<span class="m m3">6a</span>
+<span class="m m4">0b</span>
+</pre>
+        </div>
+    </div>
+    <p class="lead bottom" data-step="3" data-anim="up"><span lang="fr">Une instruction = un ou deux octets. Et <strong>pas de registres</strong> : une pile.</span><span lang="en">One instruction = one or two bytes. And <strong>no registers</strong>: a stack.</span></p>
+
+    <aside class="notes" lang="fr">
+        Le même add. En texte, le format WAT : des instructions très simples.
+        [→] Et le binaire : chaque instruction fait un ou deux octets.
+        [→] Les couleurs : a = local.get 0 = 20 00, b = local.get 1 = 20 01, + = i32.add = 6a, fin = 0b.
+        Remarquez : pas de registres. Une machine à pile. Voyons ce que ça veut dire.
+    </aside>
+    <aside class="notes" lang="en">
+        The same add. As text, the WAT format: very simple instructions.
+        [→] And the binary: each instruction is one or two bytes.
+        [→] The colors: a = local.get 0 = 20 00, b = local.get 1 = 20 01, + = i32.add = 6a, end = 0b.
+        Notice: no registers. A stack machine. Let's see what that means.
+    </aside>
+</section>
+
+<section class="slide" id="stack" data-title="Une machine à pile" data-title-en="A stack machine">
+    <h2><span lang="fr">Une machine <span class="riso">à pile</span></span><span lang="en">A <span class="riso">stack</span> machine</span></h2>
+    <div class="sm">
+        <div class="sm__left">
+            <p class="sm__call"><code>add(2, 40)</code></p>
+            <div class="sm__locals">
+                <span>local 0 = <b>2</b></span>
+                <span>local 1 = <b>40</b></span>
+            </div>
+            <ol class="sm__code">
+                <li data-states="1:on 2:done"><code>local.get 0</code><small><span lang="fr">empile local 0</span><span lang="en">pushes local 0</span></small></li>
+                <li data-states="2:on 3:done"><code>local.get 1</code><small><span lang="fr">empile local 1</span><span lang="en">pushes local 1</span></small></li>
+                <li data-states="3:on 4:done"><code>i32.add</code><small><span lang="fr">dépile deux valeurs, empile leur somme</span><span lang="en">pops two values, pushes their sum</span></small></li>
+                <li data-states="4:on"><code>end</code><small><span lang="fr">renvoie le sommet de la pile</span><span lang="en">returns the top of the stack</span></small></li>
+            </ol>
+        </div>
+        <div class="sm__right">
+            <div class="sm__tube">
+                <span class="plate plate--a" data-states="1:in 3:out">2</span>
+                <span class="plate plate--b" data-states="2:in 3:out">40</span>
+                <span class="plate plate--c" data-states="3:in 4:return">42</span>
+            </div>
+            <span class="sm__label"><span lang="fr">la pile</span><span lang="en">the stack</span></span>
+            <span class="sm__result" data-step="4" data-anim="pop">→ 42</span>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        On exécute add(2, 40) à la main.
+        [→] local.get 0 : on empile 2.
+        [→] local.get 1 : on empile 40.
+        [→] i32.add : on dépile deux valeurs, on empile 42.
+        [→] end : ce qui reste sur la pile, c'est le résultat. Simple, et facile à vérifier : c'est pour ça que c'est sûr.
+    </aside>
+    <aside class="notes" lang="en">
+        Let's run add(2, 40) by hand.
+        [→] local.get 0: we push 2.
+        [→] local.get 1: we push 40.
+        [→] i32.add: we pop two values, we push 42.
+        [→] end: what is left on the stack is the result. Simple, and easy to check: that is why it is safe.
+    </aside>
+</section>
+
+<section class="slide" id="bytes" data-title="41 octets, en direct" data-title-en="41 bytes, live">
+    <h2><span lang="fr">41 octets. <span class="riso">En direct.</span></span><span lang="en">41 bytes. <span class="riso">Live.</span></span></h2>
+    <div class="b41" id="b41"></div>
+    <div class="b41__run" data-step="6" data-anim="up">
+<pre class="small b41__code"><span class="tok-k">const</span> { instance } = <span class="tok-k">await</span> WebAssembly.<span class="tok-f">instantiate</span>(bytes);
+instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" value="2" aria-label="a">, <input id="b41-b" type="number" value="40" aria-label="b">)</pre>
+        <span class="b41__equals">=</span>
+        <span class="b41__result" id="b41-result">?</span>
+    </div>
+
+    <aside class="notes" lang="fr">
+        En haut : le fichier add.wasm en entier. 41 octets, écrits à la main dans ce deck.
+        Un en-tête, puis des sections, qui commencent toutes pareil : leur numéro, puis leur taille. Ensuite, le contenu.
+        [→] L'en-tête : "\0asm", le nombre magique qui dit « je suis du WebAssembly », puis la version 1.
+        [→] Section 1, les types, c'est-à-dire les signatures. 60 veut dire « fonction », 7f veut dire « i32 ». Le type 0, c'est (i32, i32) → i32.
+        [→] Section 3, les fonctions : il y en a une, de type 0. Juste sa signature : son code est plus loin.
+        [→] Section 7, les exports : ce que JavaScript voit. La fonction 0, sous le nom "add".
+        [→] Section 10, le code : on retrouve les 4 instructions de la machine à pile.
+        [→] Et on l'exécute pour de vrai : le navigateur vient de le compiler en code machine. On peut changer les nombres. Essayer 2147483647 + 1 : des entiers 32 bits !
+    </aside>
+    <aside class="notes" lang="en">
+        At the top: the whole add.wasm file. 41 bytes, written by hand in this deck.
+        A header, then sections, that all start the same way: their number, then their size. Then, the content.
+        [→] The header: "\0asm", the magic number that says "I am WebAssembly", then version 1.
+        [→] Section 1, the types, that is the signatures. 60 means "function", 7f means "i32". Type 0 is (i32, i32) → i32.
+        [→] Section 3, the functions: there is one, of type 0. Only its signature: its code comes later.
+        [→] Section 7, the exports: what JavaScript sees. Function 0, under the name "add".
+        [→] Section 10, the code: here are the 4 instructions of the stack machine.
+        [→] And we run it for real: the browser just compiled it to machine code. The numbers can be changed. Try 2147483647 + 1: 32-bit integers!
+    </aside>
+</section>
+
+<section class="slide" id="sandbox" data-title="Un bac à sable" data-title-en="A sandbox">
+    <h2><span lang="fr">Un bac à sable <span class="hl-pink">fermé</span></span><span lang="en">A <span class="hl-pink">closed</span> sandbox</span></h2>
+    <div class="sb">
+        <div class="sb__module">
+            <span class="sb__tag">module .wasm</span>
+            <div class="sb__code">⚙️ code</div>
+            <div class="sb__mem">
+                <div class="sb__cells"><i>00</i><i>2a</i><i>00</i><i>00</i><i>53</i><i>61</i><i>6c</i><i>75</i><i>74</i><i>00</i></div>
+                <span><span lang="fr">la mémoire : un grand tableau d'octets</span><span lang="en">the memory: a big array of bytes</span></span>
+            </div>
+            <div class="sb__types" data-step="2" data-anim="pop">
+                <span class="pill">i32</span><span class="pill">i64</span><span class="pill">f32</span><span class="pill">f64</span>
+                <small><span lang="fr">que des nombres. Pas de chaîne, pas d'objet.</span><span lang="en">only numbers. No string, no object.</span></small>
+            </div>
+        </div>
+        <div class="swap sb__middle">
+            <div class="sb__no" data-until="4">
+                <span data-step="1" data-anim="pop">📁 <span lang="fr">fichiers</span><span lang="en">files</span> <b>✗</b></span>
+                <span data-step="1" data-anim="pop">🖥️ <span lang="fr">écran</span><span lang="en">screen</span> <b>✗</b></span>
+                <span data-step="1" data-anim="pop">🌐 <span lang="fr">réseau</span><span lang="en">network</span> <b>✗</b></span>
+            </div>
+            <div class="sb__links">
+                <div class="sb__link is-export" data-step="4" data-anim="left">
+                    <span class="sb__arrow"><i></i><code>add(2, 40)</code></span>
+                    <p><b>export</b><span lang="fr"> : JS appelle le module</span><span lang="en">: JS calls the module</span></p>
+                    <small><span lang="fr">une fonction que le module rend publique</span><span lang="en">a function that the module makes public</span></small>
+                </div>
+                <div class="sb__link is-import" data-step="5" data-anim="right">
+                    <span class="sb__arrow"><i></i><code>print(42)</code></span>
+                    <p><b>import</b><span lang="fr"> : le module appelle JS</span><span lang="en">: the module calls JS</span></p>
+                    <small><span lang="fr">seulement les fonctions que JS lui a données</span><span lang="en">only the functions that JS gave it</span></small>
+                </div>
+            </div>
+        </div>
+        <div class="sb__host" data-step="3" data-anim="left">
+            <span class="sb__tag"><span lang="fr">JavaScript · l'hôte</span><span lang="en">JavaScript · the host</span></span>
+            <span>📁 <span lang="fr">fichiers</span><span lang="en">files</span> <b>✓</b></span>
+            <span>🖥️ <span lang="fr">écran</span><span lang="en">screen</span> <b>✓</b></span>
+            <span>🌐 <span lang="fr">réseau</span><span lang="en">network</span> <b>✓</b></span>
+        </div>
+    </div>
+    <p class="punch bottom" data-step="6" data-anim="up"><span lang="fr">Écrire, lire un fichier… PHP devra <span class="hl-pink">tout</span> demander à JavaScript.</span><span lang="en">Writing, reading a file… PHP will have to ask JavaScript for <span class="hl-pink">everything</span>.</span></p>
+
+    <aside class="notes" lang="fr">
+        Le module est une boîte fermée : du code, et une mémoire qui n'est qu'un grand tableau d'octets.
+        [→] Il n'a accès à rien : ni fichiers, ni écran, ni réseau.
+        [→] Et il ne manipule que des nombres. Pas de chaînes de caractères ! Retenez ça, ça va compter.
+        [→] Qui a accès à tout ça ? JavaScript, le programme qui charge le module : on l'appelle l'hôte.
+        [→] Entre les deux, deux portes, pas plus. Les exports : les fonctions que le module rend publiques. JS les appelle : c'est notre add(2, 40) de tout à l'heure.
+        [→] Les imports : des fonctions que JS donne au module quand il le charge. Seulement celles-là : pas d'eval, pas de DOM, il ne peut pas lancer n'importe quel JS. Le module ne sait pas afficher 42 ? Il appelle print(42), et c'est JS qui affiche. PHP, lui, en reçoit 99.
+        [→] Donc quand PHP fera echo, ce sera un import : c'est JS qui fera le travail.
+    </aside>
+    <aside class="notes" lang="en">
+        The module is a closed box: code, and a memory that is just a big array of bytes.
+        [→] It has access to nothing: no files, no screen, no network.
+        [→] And it only handles numbers. No strings! Remember that, it will matter.
+        [→] Who has access to all that? JavaScript, the program that loads the module: we call it the host.
+        [→] Between the two, two doors, no more. The exports: the functions that the module makes public. JS calls them: that is our add(2, 40) from before.
+        [→] The imports: functions that JS gives to the module when it loads it. Only those: no eval, no DOM, it cannot run any JS it wants. The module cannot display 42? It calls print(42), and JS displays it. PHP gets 99 of them.
+        [→] So when PHP does an echo, it will be an import: JS will do the work.
+    </aside>
+</section>
+
+<!-- ============================================================ 02 PHP -->
+
+<section class="slide chapter" id="ch2" data-chrome="none" data-station="PHP, du C" data-station-en="PHP, in C" data-time="6" style="--bg: var(--pink); --fg: var(--ink); --ink2: var(--paper)">
+    <div class="chapter__num riso">02</div>
+    <h2 class="chapter__title"><span lang="fr">PHP ?<br>Un programme C.</span><span lang="en">PHP?<br>A C program.</span></h2>
+    <p class="chapter__sub"><span lang="fr">Et sa prise vers le monde : la SAPI</span><span lang="en">And its plug to the world: the SAPI</span></p>
+    <aside class="notes" lang="fr">Chapitre 2 : ouvrons le capot de PHP.</aside>
+    <aside class="notes" lang="en">Chapter 2: let's open the hood of PHP.</aside>
+</section>
+
+<section class="slide" id="anatomy" data-title="Anatomie de PHP" data-title-en="Anatomy of PHP">
+    <h2><span lang="fr">Anatomie de <code class="big-code">php-src</code></span><span lang="en">Anatomy of <code class="big-code">php-src</code></span></h2>
+    <div class="anat">
+        <div class="anat__layer anat__sapi" data-step="4" data-anim="drop" style="--r: -3deg">
+            <b>SAPI</b>
+            <span class="anat__chips"><span class="pill">cli</span><span class="pill">fpm</span><span class="pill">apache2handler</span><span class="pill anat__embed" data-states="5:hl">embed</span></span>
+        </div>
+        <div class="anat__layer anat__main" data-step="3" data-anim="drop" style="--r: 4deg">
+            <b>main</b><span><span lang="fr">flux, php.ini, sortie, superglobales</span><span lang="en">streams, php.ini, output, superglobals</span></span>
+        </div>
+        <div class="anat__row">
+            <div class="anat__layer anat__zend" data-step="1" data-anim="drop" style="--r: -5deg">
+                <b>Zend Engine</b><span><span lang="fr">compile le PHP en opcodes, et les exécute</span><span lang="en">compiles PHP to opcodes, and runs them</span></span>
+            </div>
+            <div class="anat__col">
+                <div class="anat__layer anat__ext" data-step="2" data-anim="drop" style="--r: 3deg">
+                    <b>extensions</b><span>standard · json · pcre · mbstring · dom · intl…</span>
+                </div>
+                <div class="anat__layer anat__libs" data-step="2" data-anim="drop" style="--r: -2deg">
+                    <b><span lang="fr">bibliothèques C</span><span lang="en">C libraries</span></b><span>libxml2 · oniguruma · ICU · OpenSSL · SQLite</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="anat__note" data-step="5" data-anim="up"><span lang="fr"><b>SAPI</b> = <i>Server API</i> : la prise entre PHP et le monde. Qui lui donne la requête ? Où part l'<code>echo</code> ?</span><span lang="en"><b>SAPI</b> = <i>Server API</i>: the plug of PHP to the world. Who gives it the request? Where does <code>echo</code> go?</span></p>
+
+    <aside class="notes" lang="fr">
+        PHP, c'est un gros programme C.
+        [→] Au cœur, le Zend Engine : il compile votre PHP en opcodes et les exécute.
+        [→] Autour, les extensions, qui s'appuient souvent sur des bibliothèques C : libxml2 pour dom, ICU pour intl…
+        [→] main : les flux, php.ini, la sortie.
+        [→] Et tout en haut, la SAPI. C'est la prise : cli pour le terminal, fpm pour nginx…
+        [→] Et une SAPI moins connue : embed.
+    </aside>
+    <aside class="notes" lang="en">
+        PHP is a big C program.
+        [→] At its heart, the Zend Engine: it compiles your PHP to opcodes and runs them.
+        [→] Around it, the extensions, that often rely on C libraries: libxml2 for dom, ICU for intl…
+        [→] main: the streams, php.ini, the output.
+        [→] And at the very top, the SAPI. It is the plug: cli for the terminal, fpm for nginx…
+        [→] And a lesser known SAPI: embed.
+    </aside>
+</section>
+
+<section class="slide" id="embed-sapi" data-title="La SAPI embed" data-title-en="The embed SAPI">
+    <p class="kicker"><span lang="fr">La SAPI embed</span><span lang="en">The embed SAPI</span></p>
+    <h2><span lang="fr">PHP, en <span class="riso">bibliothèque</span></span><span lang="en">PHP, as a <span class="riso">library</span></span></h2>
+    <div class="row embed-row">
+        <div class="grow">
+            <div class="code-label"><span lang="fr">mon-php.c</span><span lang="en">my-php.c</span></div>
+            <pre data-lang="c" class="small" data-hl="1:4 2:5 3:6 4:">
+                #include &lt;sapi/embed/php_embed.h&gt;
+                int main(int argc, char **argv)
+                {
+                    php_embed_init(argc, argv);
+                    zend_eval_string("echo 'Salut';", NULL, "code");
+                    php_embed_shutdown();
+                }
+            </pre>
+        </div>
+        <div class="embed-side">
+            <ol class="embed-steps">
+                <li data-step="1" data-anim="left"><b>1</b> <span lang="fr">PHP démarre</span><span lang="en">PHP starts</span></li>
+                <li data-step="2" data-anim="left"><b>2</b> <span lang="fr">PHP exécute du code</span><span lang="en">PHP runs code</span></li>
+                <li data-step="3" data-anim="left"><b>3</b> <span lang="fr">PHP s'arrête</span><span lang="en">PHP stops</span></li>
+            </ol>
+            <pre lang="fr" data-lang="sh" class="tiny embed-term" data-step="4" data-anim="up">
+                $ gcc mon-php.c -lphp -o mon-php
+                $ ./mon-php
+                Salut
+            </pre>
+            <pre lang="en" data-lang="sh" class="tiny embed-term" data-step="4" data-anim="up">
+                $ gcc my-php.c -lphp -o my-php
+                $ ./my-php
+                Salut
+            </pre>
+        </div>
+    </div>
+    <p class="punch bottom" data-step="5" data-anim="up"><span lang="fr">Du C… qu'on sait compiler en WebAssembly. 🤔</span><span lang="en">C… that we can compile to WebAssembly. 🤔</span></p>
+
+    <aside class="notes" lang="fr">
+        Avec la SAPI embed, PHP devient une bibliothèque, libphp, qu'on appelle depuis son propre programme C.
+        [→] On démarre PHP, [→] on lui donne du code, [→] on l'arrête.
+        [→] Trois fonctions, et on a notre propre « php ».
+        [→] Et ça, c'est du C. Et on vient de voir qu'on sait compiler du C en WebAssembly…
+    </aside>
+    <aside class="notes" lang="en">
+        With the embed SAPI, PHP becomes a library, libphp, that we call from our own C program.
+        [→] We start PHP, [→] we give it code, [→] we stop it.
+        [→] Three functions, and we have our own "php".
+        [→] And that is C. And we just saw that we know how to compile C to WebAssembly…
+    </aside>
+</section>
+
+<!-- ============================================================ 03 COMPILER -->
+
+<section class="slide chapter" id="ch3" data-chrome="none" data-station="Compiler" data-station-en="Compile" data-time="8" style="--bg: var(--yellow); --fg: var(--ink); --ink2: var(--pink)">
+    <div class="chapter__num riso">03</div>
+    <h2 class="chapter__title"><span lang="fr">Compiler PHP<br>en WebAssembly</span><span lang="en">Compiling PHP<br>to WebAssembly</span></h2>
+    <p class="chapter__sub"><span lang="fr">Emscripten, et une chaîne de montage Docker</span><span lang="en">Emscripten, and a Docker assembly line</span></p>
+    <aside class="notes" lang="fr">Chapitre 3 : la compilation. C'est le cœur du projet : le Dockerfile.</aside>
+    <aside class="notes" lang="en">Chapter 3: the compilation. The heart of the project: the Dockerfile.</aside>
+</section>
+
+<section class="slide" id="emscripten" data-title="Emscripten">
+    <h2><span lang="fr"><span class="riso">Emscripten</span> : un faux OS, en JS</span><span lang="en"><span class="riso">Emscripten</span>: a fake OS, in JS</span></h2>
+    <div class="grid cols-2 emsc">
+        <div class="stack-v">
+            <div>
+                <div class="code-label">hello.c</div>
+                <pre data-lang="c" class="small">
+                    #include &lt;stdio.h&gt;
+                    int main(void)
+                    {
+                        printf("Salut\n");
+                    }
+                </pre>
+            </div>
+            <pre data-lang="sh" class="tiny">
+                $ emcc hello.c -o hello.mjs
+                $ node hello.mjs
+                Salut
+            </pre>
+            <div class="emsc__files">
+                <span class="file"><span class="file__icon" style="--c: #e9e2ff"><span class="wasm-logo" style="--size: 40px">WA</span></span>hello.wasm<small><span lang="fr">le code</span><span lang="en">the code</span></small></span>
+                <span class="file"><span class="file__icon" style="--c: #fff3c4">JS</span>hello.mjs<small><span lang="fr">la glue</span><span lang="en">the glue</span></small></span>
+            </div>
+        </div>
+        <div class="os" data-step="1" data-anim="left">
+            <div class="os__table">
+                <span></span>
+                <b class="os__head">Linux</b>
+                <b class="os__head" data-step="2">Emscripten</b>
+
+                <span class="os__label"><span lang="fr">ton code</span><span lang="en">your code</span></span>
+                <div class="os__cell is-call"><b>hello.c</b><code>printf("Salut\n")</code></div>
+                <div class="os__cell is-call is-wasm" data-step="2" data-anim="left"><b>hello.c</b><i>.wasm</i><code>printf("Salut\n")</code></div>
+
+                <span class="os__label"><span lang="fr">la libc</span><span lang="en">the libc</span></span>
+                <div class="os__cell is-call"><b>glibc</b><code>write(1, …)</code></div>
+                <div class="os__cell is-call is-wasm" data-step="2" data-anim="left"><b>musl</b><i>.wasm</i><code>write(1, …)</code></div>
+
+                <span class="os__label"><span lang="fr">le noyau</span><span lang="en">the kernel</span></span>
+                <div class="os__cell"><b>Linux</b><small><span lang="fr">un appel système</span><span lang="en">a system call</span></small></div>
+                <div class="os__cell is-glue" data-step="3" data-anim="left"><b><span lang="fr">la glue JS</span><span lang="en">the JS glue</span></b><i>.mjs</i><code>fd_write(1, …)</code></div>
+
+                <span class="os__label"><span lang="fr">les fichiers</span><span lang="en">the files</span></span>
+                <div class="os__cell"><b><span lang="fr">sur le disque</span><span lang="en">on the disk</span></b></div>
+                <div class="os__cell is-glue" data-step="4" data-anim="left"><b><span lang="fr">en mémoire</span><span lang="en">in memory</span></b><i>.mjs</i><small><span lang="fr">un faux disque, en JS</span><span lang="en">a fake disk, in JS</span></small></div>
+            </div>
+            <div class="swap os__say">
+                <p data-until="2"><span lang="fr">Sur Linux, <code>printf</code> ne sait pas écrire : la libc demande au <b>noyau</b>.</span><span lang="en">On Linux, <code>printf</code> cannot write: the libc asks the <b>kernel</b>.</span></p>
+                <p data-step="2" data-until="3"><span lang="fr">Emscripten compile ton code <b>et une vraie libc</b> en <code>.wasm</code> (clang + LLVM).</span><span lang="en">Emscripten compiles your code <b>and a real libc</b> to <code>.wasm</code> (clang + LLVM).</span></p>
+                <p data-step="3" data-until="4"><span lang="fr">Pas de noyau dans le bac à sable : la libc appelle un <b>import</b> de la glue JS.</span><span lang="en">No kernel in the sandbox: the libc calls an <b>import</b> of the JS glue.</span></p>
+                <p data-step="4"><span lang="fr"><code>fopen()</code> marche aussi : la glue garde les fichiers en mémoire.</span><span lang="en"><code>fopen()</code> works too: the glue keeps the files in memory.</span></p>
+            </div>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        L'outil, c'est Emscripten. emcc remplace gcc.
+        Il produit deux fichiers : le .wasm, le code compilé, et un .mjs, la glue JavaScript.
+        [→] Rappel : sur Linux, printf ne sait pas écrire à l'écran. Il passe par la libc, qui fait un appel système : c'est le noyau qui écrit. Pareil pour les fichiers : c'est le noyau qui parle au disque.
+        [→] Emscripten compile votre code, et une vraie libc, musl, en WebAssembly, avec clang et LLVM. Les deux finissent dans le .wasm.
+        [→] Mais dans le bac à sable, il n'y a pas de noyau. Alors la libc appelle un import, fd_write, et c'est la glue JS qui fait le travail du noyau.
+        [→] Pareil pour les fichiers : fopen marche, la glue garde un faux disque en mémoire.
+        D'où le titre : un faux OS, écrit en JS.
+    </aside>
+    <aside class="notes" lang="en">
+        The tool is Emscripten. emcc replaces gcc.
+        It makes two files: the .wasm, the compiled code, and a .mjs, the JavaScript glue.
+        [→] Reminder: on Linux, printf cannot write to the screen. It goes through the libc, that makes a system call: the kernel writes. Same for files: the kernel talks to the disk.
+        [→] Emscripten compiles your code, and a real libc, musl, to WebAssembly, with clang and LLVM. Both end up in the .wasm.
+        [→] But in the sandbox, there is no kernel. So the libc calls an import, fd_write, and the JS glue does the work of the kernel.
+        [→] Same for files: fopen works, the glue keeps a fake disk in memory.
+        Hence the title: a fake OS, written in JS.
+    </aside>
+</section>
+
+<section class="slide" id="configure" data-title="Le même build, un autre compilateur" data-title-en="The same build, another compiler">
+    <h2><span lang="fr">Même build, autre <span class="hl-pink">compilateur</span></span><span lang="en">Same build, another <span class="hl-pink">compiler</span></span></h2>
+    <div class="swapcmd">
+        <code><span class="em">em</span>configure ./configure &amp;&amp; <span class="em">em</span>make make</code>
+        <p class="small muted swapcmd__note"><span lang="fr">Ils posent <code>CC=emcc</code>, <code>AR=emar</code>… : <code>./configure</code> n'y voit que du feu.</span><span lang="en">They set <code>CC=emcc</code>, <code>AR=emar</code>…: <code>./configure</code> does not notice a thing.</span></p>
+    </div>
+    <div class="flags">
+        <div class="flags__row" data-step="2" data-anim="left"><code>--host=wasm32-unknown-emscripten</code><span><span lang="fr">on compile pour une autre machine</span><span lang="en">we compile for another machine</span></span></div>
+        <div class="flags__row" data-step="3" data-anim="left"><code>--enable-embed=static</code><span><code>libphp.a</code><span lang="fr"> : la SAPI embed</span><span lang="en">: the embed SAPI</span></span></div>
+        <div class="flags__row" data-step="4" data-anim="left"><code>--disable-all</code><span><span lang="fr">aucune extension… puis celles qu'on choisit</span><span lang="en">no extension… then the ones we pick</span></span></div>
+        <div class="flags__row" data-step="5" data-anim="left"><code>--without-pcre-jit</code><span><span lang="fr">pas de JIT : impossible de générer du code machine</span><span lang="en">no JIT: no way to generate machine code</span></span></div>
+        <div class="flags__row" data-step="6" data-anim="left"><code>--disable-fiber-asm</code><span><span lang="fr">pas d'assembleur pour changer de pile</span><span lang="en">no assembly to switch stacks</span></span></div>
+        <div class="flags__row" data-step="7" data-anim="left"><code>--disable-cli --disable-cgi</code><span><span lang="fr">les autres SAPI ne servent à rien ici</span><span lang="en">the other SAPIs are no use here</span></span></div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Bonne nouvelle : PHP se compile avec ./configure && make, comme d'habitude.
+        [→] On préfixe juste par emconfigure et emmake : ils remplacent gcc par emcc dans l'environnement.
+        Les options intéressantes du configure :
+        [→] on cross-compile, pour wasm32.
+        [→] la SAPI embed, en statique.
+        [→] aucune extension par défaut : on choisit.
+        [→] pas de JIT pour PCRE : WebAssembly ne peut pas générer de code machine à la volée.
+        [→] pas d'assembleur pour les Fibers : on y reviendra.
+        [→] et pas besoin de la CLI : on a notre propre point d'entrée.
+    </aside>
+    <aside class="notes" lang="en">
+        Good news: PHP compiles with ./configure && make, as usual.
+        [→] We just prefix them with emconfigure and emmake: they replace gcc with emcc in the environment.
+        The interesting options of configure:
+        [→] we cross-compile, for wasm32.
+        [→] the embed SAPI, static.
+        [→] no extension by default: we pick.
+        [→] no JIT for PCRE: WebAssembly cannot generate machine code on the fly.
+        [→] no assembly for Fibers: we will come back to it.
+        [→] and no need for the CLI: we have our own entry point.
+    </aside>
+</section>
+
+<section class="slide" id="libs" data-title="Les extensions ont des dépendances" data-title-en="Extensions have dependencies">
+    <h2><span lang="fr">Une extension, une <span class="riso">bibliothèque</span></span><span lang="en">One extension, one <span class="riso">library</span></span></h2>
+    <div class="libs">
+        <table class="libs__table">
+            <tr data-step="1" data-anim="left"><td><code>mbstring</code></td><td>→</td><td><b>oniguruma</b></td></tr>
+            <tr data-step="2" data-anim="left"><td><code>dom</code> <code>xml</code> <code>simplexml</code></td><td>→</td><td><b>libxml2</b></td></tr>
+            <tr data-step="3" data-anim="left"><td><code>pdo_sqlite</code> <code>sqlite3</code></td><td>→</td><td><b>SQLite</b></td></tr>
+            <tr data-step="4" data-anim="left"><td><code>openssl</code></td><td>→</td><td><b>OpenSSL</b></td></tr>
+            <tr data-step="5" data-anim="left"><td><code>intl</code></td><td>→</td><td><b>ICU</b></td></tr>
+        </table>
+        <div class="jar">
+            <span class="jar__label">php-web.wasm</span>
+            <div class="jar__body">
+                <span class="brick brick--icu" data-step="5" data-anim="drop" style="--r: -8deg">ICU</span>
+                <span class="brick brick--ssl" data-step="4" data-anim="drop" style="--r: 10deg">OpenSSL</span>
+                <span class="brick brick--sqlite" data-step="3" data-anim="drop" style="--r: -12deg">SQLite</span>
+                <span class="brick brick--xml" data-step="2" data-anim="drop" style="--r: 6deg">libxml2</span>
+                <span class="brick brick--onig" data-step="1" data-anim="drop" style="--r: -6deg">oniguruma</span>
+                <span class="brick brick--php">libphp.a</span>
+            </div>
+        </div>
+    </div>
+    <p class="lead bottom" data-step="6" data-anim="up"><span lang="fr">Compilées elles aussi avec <code>emcc</code>. Pas de <code>.so</code>, pas de <code>dlopen()</code> : <strong>tout dans un seul fichier.</strong></span><span lang="en">Compiled with <code>emcc</code> too. No <code>.so</code>, no <code>dlopen()</code>: <strong>all in one file.</strong></span></p>
+
+    <aside class="notes" lang="fr">
+        Les extensions s'appuient sur des bibliothèques C. Il faut donc les compiler, elles aussi, en WebAssembly.
+        [→] mbstring a besoin d'oniguruma, [→] les extensions XML de libxml2, [→] SQLite, [→] OpenSSL, [→] et intl d'ICU.
+        [→] Et il n'y a pas de chargement dynamique : pas de .so. Tout est lié en statique, dans un seul .wasm.
+    </aside>
+    <aside class="notes" lang="en">
+        Extensions rely on C libraries. So they must be compiled to WebAssembly too.
+        [→] mbstring needs oniguruma, [→] the XML extensions need libxml2, [→] SQLite, [→] OpenSSL, [→] and intl needs ICU.
+        [→] And there is no dynamic loading: no .so. Everything is linked statically, into a single .wasm.
+    </aside>
+</section>
+
+<section class="slide" id="dockerfile" data-title="Le Dockerfile, une chaîne de montage" data-title-en="The Dockerfile, an assembly line">
+    <p class="kicker">docker/Dockerfile</p>
+    <h2><span lang="fr">Une chaîne de <span class="riso">montage</span></span><span lang="en">An assembly <span class="riso">line</span></span></h2>
+    <div class="dag">
+        <svg class="dag__lines" viewBox="0 0 1408 430" aria-hidden="true">
+            <path d="M704 66 L 302 130"/>
+            <path d="M704 66 L 506 130"/>
+            <path d="M704 66 L 710 130"/>
+            <path d="M704 66 L 914 130"/>
+            <path d="M704 66 L 1118 130"/>
+            <path d="M704 66 L 1322 130"/>
+            <path d="M98 196 L 704 250"/>
+            <path d="M302 196 L 704 250"/>
+            <path d="M506 196 L 704 250"/>
+            <path d="M710 196 L 704 250"/>
+            <path d="M914 196 L 704 250"/>
+            <path d="M1118 196 L 704 250"/>
+            <path d="M1322 196 L 704 250"/>
+            <path d="M704 316 L 704 360"/>
+            <path d="M794 393 L 940 393"/>
+        </svg>
+        <div class="dag__args" data-step="1" data-anim="right">
+            <code data-until="2">EXTENSIONS="mbstring dom"</code>
+            <code data-step="2">EXTENSIONS="mbstring dom <b>intl</b>"</code>
+        </div>
+        <div class="stage" style="left: 614px; top: 0" data-states="1:run"><b>resolve</b><small><span lang="fr">le plan</span><span lang="en">the plan</span></small></div>
+        <div class="stage" style="left: 8px; top: 130px" data-states="1:build 2:cached"><b>php-src</b><small>git clone</small></div>
+        <div class="stage" style="left: 212px; top: 130px" data-states="1:build 2:cached"><b>oniguruma</b></div>
+        <div class="stage" style="left: 416px; top: 130px" data-states="1:build 2:cached"><b>libxml2</b></div>
+        <div class="stage" style="left: 620px; top: 130px" data-states="1:skip 2:build"><b>icu</b></div>
+        <div class="stage" style="left: 824px; top: 130px" data-states="1:skip 2:cached"><b>libiconv</b></div>
+        <div class="stage" style="left: 1028px; top: 130px" data-states="1:skip 2:cached"><b>openssl</b></div>
+        <div class="stage" style="left: 1232px; top: 130px" data-states="1:skip 2:cached"><b>sqlite</b></div>
+        <div class="stage" style="left: 614px; top: 250px" data-states="1:build"><b>php</b><small>configure + make</small></div>
+        <div class="stage" style="left: 614px; top: 360px" data-states="1:build"><b>link</b><small>emcc → .wasm</small></div>
+        <div class="dag__out" style="left: 950px; top: 368px">📦 <code>php-web.mjs</code> <code>php-web.wasm</code></div>
+        <div class="dag__legend" data-step="1" data-anim="up">
+            <span class="dag__key dag__key--build"><span lang="fr">compile</span><span lang="en">builds</span></span>
+            <span class="dag__key dag__key--skip"><span lang="fr">rien à faire</span><span lang="en">nothing to do</span></span>
+            <span class="dag__key dag__key--cached" data-step="2"><span lang="fr">en cache</span><span lang="en">cached</span></span>
+        </div>
+    </div>
+    <p class="lead dag__note" data-step="2" data-anim="up"><span lang="fr">Chaque étape ne lit que <strong>son</strong> bout du plan : Docker ne refait que ce qui a changé.</span><span lang="en">Each stage reads only <strong>its</strong> part of the plan: Docker only redoes what changed.</span></p>
+
+    <aside class="notes" lang="fr">
+        Le Dockerfile est découpé en étapes : une par bibliothèque, puis PHP, puis l'édition de liens.
+        [→] Première étape, resolve : elle transforme la liste des extensions en un « plan », fait de petits fichiers. Avec mbstring et dom, on compile oniguruma et libxml2, les autres étapes ne font rien.
+        [→] Si j'ajoute intl : seule ICU se compile, puis PHP et le link. Le reste sort du cache Docker.
+        C'est pour ça que le plan est fait de petits fichiers : chaque étape ne dépend que du sien.
+    </aside>
+    <aside class="notes" lang="en">
+        The Dockerfile is split into stages: one per library, then PHP, then the link.
+        [→] First stage, resolve: it turns the list of extensions into a "plan", made of small files. With mbstring and dom, oniguruma and libxml2 are compiled, the other stages do nothing.
+        [→] If I add intl: only ICU compiles, then PHP and the link. The rest comes from the Docker cache.
+        That is why the plan is made of small files: each stage only depends on its own.
+    </aside>
+</section>
+
+<section class="slide" id="sizes" data-title="Combien ça pèse ?" data-title-en="How big is it?">
+    <h2><span lang="fr">Combien ça pèse ?</span><span lang="en">How big is it?</span></h2>
+    <div class="sizes">
+        <div class="bar" style="--w: 6.0; --gz: 2.3"><span class="bar__name">PHP 8.3</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">6,0 Mo <small>2,3 gzip</small></span><span lang="en">6.0 MB <small>2.3 gzip</small></span></span></div>
+        <div class="bar" style="--w: 7.4; --gz: 2.8"><span class="bar__name">PHP 8.4</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">7,4 Mo <small>2,8 gzip</small></span><span lang="en">7.4 MB <small>2.8 gzip</small></span></span></div>
+        <div class="bar bar--default" style="--w: 8.6; --gz: 3.1"><span class="bar__name">PHP 8.5 <small><span lang="fr">défaut</span><span lang="en">default</span></small></span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">8,6 Mo <small>3,1 gzip</small></span><span lang="en">8.6 MB <small>3.1 gzip</small></span></span></div>
+        <div class="bar" style="--w: 9.9; --gz: 3.6"><span class="bar__name">+ SQLite</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">9,9 Mo <small>3,6 gzip</small></span><span lang="en">9.9 MB <small>3.6 gzip</small></span></span></div>
+        <div class="bar" style="--w: 18; --gz: 6.7"><span class="bar__name"><span lang="fr">tout, sauf ICU</span><span lang="en">all, but ICU</span></span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">18 Mo <small>6,7 gzip</small></span><span lang="en">18 MB <small>6.7 gzip</small></span></span></div>
+        <div class="bar bar--icu" style="--w: 42; --gz: 17"><span class="bar__name">+ intl, ICU</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">42 Mo <small>17 gzip</small></span><span lang="en">42 MB <small>17 gzip</small></span></span></div>
+    </div>
+    <div class="icu-trick" data-step="1" data-anim="up">
+        <p><span lang="fr"><b>32 Mo</b> de données ICU, toutes les langues, en tableau C avec <code>#embed</code> (C23) :</span><span lang="en"><b>32 MB</b> of ICU data, every language, as a C array with <code>#embed</code> (C23):</span></p>
+        <pre data-lang="c" class="tiny">
+            alignas(16) const unsigned char icudt78_dat[] = {
+            #embed "data/in/icudt78l.dat"
+            };
+        </pre>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Le prix à payer : la taille. 8,6 Mo pour PHP 8.5 avec les extensions par défaut, 3 Mo compressé. Une grosse image.
+        intl est le plus lourd : ICU embarque les données de toutes les langues.
+        [→] L'astuce : ces 32 Mo de données sont transformés en tableau C avec #embed, une nouveauté de C23. Pas de fichier à télécharger à côté.
+    </aside>
+    <aside class="notes" lang="en">
+        The price to pay: the size. 8.6 MB for PHP 8.5 with the default extensions, 3 MB compressed. A big image.
+        intl is the heaviest: ICU embeds the data of every language.
+        [→] The trick: these 32 MB of data become a C array with #embed, new in C23. No file to download next to it.
+    </aside>
+</section>
+
+<section class="slide" id="limits" data-title="Ce qui ne marche pas" data-title-en="What does not work">
+    <h2><span lang="fr">Ce qui ne marche pas <span class="hl-pink">(et pourquoi)</span></span><span lang="en">What does not work <span class="hl-pink">(and why)</span></span></h2>
+    <div class="grid cols-2 limits">
+        <div class="card" style="--c: var(--yellow)">
+            <h3><span lang="fr">🔢 Entiers 32 bits</span><span lang="en">🔢 32-bit integers</span></h3>
+            <p><span lang="fr"><code>wasm32</code> : un <code>long</code> fait 4 octets.</span><span lang="en"><code>wasm32</code>: a <code>long</code> is 4 bytes.</span></p>
+            <pre class="output live" data-php-run="var_dump(PHP_INT_MAX);" data-fallback="int(2147483647)"></pre>
+        </div>
+        <div class="card" style="--c: var(--pink)" data-step="1" data-anim="pop">
+            <h3>🧵 Fibers</h3>
+            <p><span lang="fr">WebAssembly ne sait pas suspendre puis reprendre une pile.</span><span lang="en">WebAssembly cannot suspend a stack, then resume it.</span></p>
+            <pre class="output">Aborted(missing function: getcontext)</pre>
+        </div>
+        <div class="card" style="--c: var(--green)" data-step="2" data-anim="pop">
+            <h3><span lang="fr">🚫 Processus</span><span lang="en">🚫 Processes</span></h3>
+            <p><span lang="fr">Pas d'autre programme à lancer : <code>exec()</code>, <code>proc_open()</code>…</span><span lang="en">No other program to run: <code>exec()</code>, <code>proc_open()</code>…</span></p>
+            <pre class="output live" data-php-run="exec('ls');" data-fallback="Warning: exec(): Unable to fork [ls] in Command line code on line 1"></pre>
+        </div>
+        <div class="card" style="--c: var(--violet)" data-step="3" data-anim="pop">
+            <h3><span lang="fr">🌐 Réseau</span><span lang="en">🌐 Network</span></h3>
+            <p><span lang="fr">Pas de socket : <code>https://</code> et <code>ssl://</code> ne se connectent pas.</span><span lang="en">No socket: <code>https://</code> and <code>ssl://</code> do not connect.</span></p>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Les limites, et elles s'expliquent toutes par ce qu'on a vu.
+        Les entiers : le module est en 32 bits, PHP_INT_MAX vaut 2 milliards. Ça, c'est exécuté en direct.
+        [→] Les Fibers : il faudrait suspendre et reprendre une pile, WebAssembly ne sait pas faire. Le module meurt.
+        [→] Les processus : il n'y a pas d'autre programme. On a même dû remplacer posix_spawn() par une version qui renvoie ENOSYS, sinon proc_open() tuait le module : c'est spawn.c.
+        [→] Et pas de réseau : rien ne sort du bac à sable.
+    </aside>
+    <aside class="notes" lang="en">
+        The limits, and they are all explained by what we saw.
+        Integers: the module is 32-bit, PHP_INT_MAX is 2 billion. That one runs live.
+        [→] Fibers: a stack would have to be suspended and resumed, WebAssembly cannot do that. The module dies.
+        [→] Processes: there is no other program. We even had to replace posix_spawn() with a version that returns ENOSYS, otherwise proc_open() killed the module: that is spawn.c.
+        [→] And no network: nothing leaves the sandbox.
+    </aside>
+</section>
+
+<!-- ============================================================ 04 BRANCHER -->
+
+<section class="slide chapter" id="ch4" data-chrome="none" data-station="Brancher" data-station-en="Connect" data-time="12" style="--bg: var(--green); --fg: var(--ink); --ink2: var(--paper)">
+    <div class="chapter__num riso">04</div>
+    <h2 class="chapter__title"><span lang="fr">Parler à PHP<br>depuis JavaScript</span><span lang="en">Talking to PHP<br>from JavaScript</span></h2>
+    <p class="chapter__sub"><span lang="fr">Octet par octet</span><span lang="en">Byte by byte</span></p>
+    <aside class="notes" lang="fr">Chapitre 4 : on a un .wasm. Comment on lui parle ? C'est le binding.</aside>
+    <aside class="notes" lang="en">Chapter 4: we have a .wasm. How do we talk to it? That is the binding.</aside>
+</section>
+
+<section class="slide" id="runc" data-title="run.c, notre mini-SAPI" data-title-en="run.c, our mini SAPI">
+    <h2><code class="big-code">run.c</code><span lang="fr"> : notre point d'entrée</span><span lang="en">: our entry point</span></h2>
+    <div class="row runc">
+        <div class="grow">
+            <div class="code-label"><span lang="fr">docker/run.c, simplifié</span><span lang="en">docker/run.c, simplified</span></div>
+            <pre data-lang="c" class="small" data-hl="1:3 2:4 3:5-7 4:">
+                int run_code(char *code, int argc, char **argv)
+                {
+                    php_embed_init(argc, argv);
+                    zend_eval_string(code, NULL, "Command line code");
+                    int status = EG(exit_status);
+                    php_embed_shutdown();
+                    return status;
+                }
+            </pre>
+            <pre data-lang="sh" class="tiny runc__flags" data-step="4" data-anim="up">
+                $ emcc run.o libphp.a … -o php-web.mjs \
+                    -s EXPORTED_FUNCTIONS=_malloc,_free,_run_code,_run_file
+            </pre>
+        </div>
+        <div class="runc__right">
+            <div class="cycle">
+                <span class="cycle__step" data-states="1:on 2:done">🚀 <span lang="fr">démarre</span><span lang="en">starts</span></span>
+                <span class="cycle__step" data-states="2:on 3:done">⚙️ <span lang="fr">exécute</span><span lang="en">runs</span></span>
+                <span class="cycle__step" data-states="3:on 4:done">🧹 <span lang="fr">s'arrête</span><span lang="en">stops</span></span>
+                <span class="cycle__center"><span lang="fr">une requête</span><span lang="en">one request</span></span>
+            </div>
+            <p class="runc__caption" data-step="3" data-anim="up"><span lang="fr">Rien ne survit d'un appel à l'autre. <strong>Comme PHP-FPM.</strong></span><span lang="en">Nothing survives from one call to the next. <strong>Like PHP-FPM.</strong></span></p>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Notre programme C à nous, c'est run.c. Une fonction run_code, une fonction run_file.
+        [→] PHP démarre, [→] exécute le code, [→] s'arrête et renvoie le code de sortie.
+        Chaque appel est une requête complète : pas de variable qui traîne. Le modèle « shared nothing » de PHP.
+        [→] Et on dit à emcc d'exporter ces fonctions, plus malloc et free. Vous allez voir pourquoi.
+    </aside>
+    <aside class="notes" lang="en">
+        Our own C program is run.c. A run_code function, a run_file function.
+        [→] PHP starts, [→] runs the code, [→] stops and returns the exit code.
+        Each call is a whole request: no variable lying around. The "shared nothing" model of PHP.
+        [→] And we tell emcc to export these functions, plus malloc and free. You will see why.
+    </aside>
+</section>
+
+<section class="slide" id="memory" data-title="Une chaîne ? Un pointeur." data-title-en="A string? A pointer.">
+    <h2><span lang="fr">Une chaîne ? Non : <span class="riso">un pointeur</span>.</span><span lang="en">A string? No: <span class="riso">a pointer</span>.</span></h2>
+    <div class="mem">
+        <pre data-lang="js" class="tiny mem__code" data-hl="1:1 2:2 3:3 4:4 5:5">
+            const bytes = new TextEncoder().encode(code + '\0');
+            const ptr = _malloc(bytes.length);
+            HEAPU8.set(bytes, ptr);
+            _run_code(ptr, argc, argv);
+            _free(ptr);
+        </pre>
+        <div class="mem__js">
+            <p class="mem__string"><span class="muted small">code =</span> <code>"echo 'Salut';"</code></p>
+            <div class="mem__bytes" id="mem-bytes"></div>
+            <div class="swap">
+                <p class="mem__note" data-step="2" data-until="4" data-anim="pop"><span lang="fr">un pointeur, c'est… <b>un nombre</b> : <code>1048</code></span><span lang="en">a pointer is… <b>a number</b>: <code>1048</code></span></p>
+                <p class="mem__note" data-step="4" data-until="5" data-anim="pop"><span lang="fr">côté C, <code>char *code</code> lit à partir de <code>1048</code>… jusqu'au <code>00</code></span><span lang="en">on the C side, <code>char *code</code> reads from <code>1048</code>… up to the <code>00</code></span></p>
+                <p class="mem__note" data-step="5" data-anim="pop"><span lang="fr">la place est rendue : PHP peut s'en resservir</span><span lang="en">the space is given back: PHP can use it again</span></p>
+            </div>
+        </div>
+    </div>
+    <div class="tape" id="mem-tape"></div>
+    <p class="tape__caption"><span lang="fr">la mémoire du module, <code>HEAPU8</code> · un octet par case</span><span lang="en">the memory of the module, <code>HEAPU8</code> · one byte per cell</span></p>
+
+    <aside class="notes" lang="fr">
+        Le problème : run_code veut un char*, et WebAssembly ne connaît que des nombres. On ne peut pas lui passer une chaîne JS.
+        [→] On encode la chaîne en UTF-8, avec un octet nul à la fin, comme le C l'attend.
+        [→] On réserve de la place dans la mémoire du module avec malloc. Il renvoie une adresse : juste un nombre.
+        [→] On copie les octets à cette adresse.
+        [→] On appelle run_code avec ce nombre : côté C, c'est un char*, il lit jusqu'au zéro.
+        [→] Et on libère. C'est exactement ce que fait api.js.
+    </aside>
+    <aside class="notes" lang="en">
+        The problem: run_code wants a char*, and WebAssembly only knows numbers. We cannot pass it a JS string.
+        [→] We encode the string in UTF-8, with a null byte at the end, as C expects.
+        [→] We reserve space in the memory of the module with malloc. It returns an address: just a number.
+        [→] We copy the bytes to this address.
+        [→] We call run_code with this number: on the C side, it is a char*, it reads up to the zero.
+        [→] And we free it. That is exactly what api.js does.
+    </aside>
+</section>
+
+<section class="slide" id="argv" data-title="argv : des pointeurs de pointeurs" data-title-en="argv: pointers to pointers">
+    <h2><code class="big-code">char **argv</code><span lang="fr"> : des pointeurs de pointeurs</span><span lang="en">: pointers to pointers</span></h2>
+    <p class="lead small argv__call"><code><span lang="fr">php.runCode(code, { args: ['un', 'deux'] })</span><span lang="en">php.runCode(code, { args: ['one', 'two'] })</span></code> → <code>$argv</code></p>
+    <div class="argv">
+        <div class="argv__array" data-step="2" data-anim="down">
+            <span class="argv__addr">argv = 2000</span>
+            <span class="argv__cell" data-states="4:zoom"><b>1100</b><small>4c 04 00 00</small></span>
+            <span class="argv__cell"><b>1200</b><small>b0 04 00 00</small></span>
+            <span class="argv__cell"><b>1300</b><small>14 05 00 00</small></span>
+        </div>
+        <svg class="argv__arrows" width="1100" height="90" viewBox="0 0 1100 90" aria-hidden="true">
+            <defs><marker id="argv-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z"/></marker></defs>
+            <path data-step="3" d="M300 4 L 170 80" marker-end="url(#argv-head)"/>
+            <path data-step="3" d="M550 4 L 550 80" marker-end="url(#argv-head)"/>
+            <path data-step="3" d="M800 4 L 930 80" marker-end="url(#argv-head)"/>
+        </svg>
+        <div class="argv__strings" data-step="1" data-anim="up">
+            <span><small>1100</small><code>"Standard input code\0"</code></span>
+            <span><small>1200</small><code><span lang="fr">"un\0"</span><span lang="en">"one\0"</span></code></span>
+            <span><small>1300</small><code><span lang="fr">"deux\0"</span><span lang="en">"two\0"</span></code></span>
+        </div>
+    </div>
+    <pre data-lang="js" class="tiny argv__code" data-hl="1:1 2:2-3 4:3">
+        const pointers = argv.map(copyString);
+        const array = _malloc(pointers.length * 4);
+        HEAPU32.set(pointers, array / 4);
+    </pre>
+    <p class="argv__note" data-step="4" data-anim="up"><span lang="fr"><b>HEAPU8</b> et <b>HEAPU32</b> : deux lunettes sur la même mémoire. Un <code>u32</code> = 4 octets, à l'envers (little-endian).</span><span lang="en"><b>HEAPU8</b> and <b>HEAPU32</b>: two lenses on the same memory. A <code>u32</code> = 4 bytes, backwards (little-endian).</span></p>
+
+    <aside class="notes" lang="fr">
+        (Optionnelle : Shift+→ pour la sauter si on est en retard.)
+        Pareil pour les arguments, en pire : argv est un tableau de pointeurs.
+        [→] On copie chaque chaîne : trois adresses.
+        [→] On réserve un tableau de 3 × 4 octets, [→] et on y écrit les trois adresses.
+        [→] HEAPU32 voit la même mémoire que HEAPU8, par paquets de 4 octets : d'où le array / 4. 1100, c'est 4c 04 00 00 en mémoire.
+    </aside>
+    <aside class="notes" lang="en">
+        (Optional: Shift+→ to skip it when late.)
+        Same for the arguments, but worse: argv is an array of pointers.
+        [→] We copy each string: three addresses.
+        [→] We reserve an array of 3 × 4 bytes, [→] and we write the three addresses in it.
+        [→] HEAPU32 sees the same memory as HEAPU8, 4 bytes at a time: hence the array / 4. 1100 is 4c 04 00 00 in memory.
+    </aside>
+</section>
+
+<section class="slide" id="stdout" data-title="Et echo ?" data-title-en="And echo?">
+    <h2><span lang="fr">Et dans l'autre sens : <code class="big-code">echo</code></span><span lang="en">And the other way: <code class="big-code">echo</code></span></h2>
+    <div class="flow">
+        <div class="flow__box flow__php"><b>PHP</b><code>echo "Salut";</code></div>
+        <span class="flow__arrow">→</span>
+        <div class="flow__box flow__libc"><b>libc</b><code>write(1, …)</code></div>
+        <span class="flow__arrow">→</span>
+        <div class="flow__box flow__glue" data-step="1" data-anim="pop"><b><span lang="fr">glue JS</span><span lang="en">JS glue</span></b><code>Module.stdout(83)</code><small><span lang="fr">une fois par octet</span><span lang="en">once per byte</span></small></div>
+        <span class="flow__arrow" data-step="1">→</span>
+        <div class="flow__box flow__js" data-step="2" data-anim="pop"><b>JS</b><code class="flow__array">[83, 97, 108, 117, 116]</code></div>
+        <div class="flow__balls" data-step="2"><i>S</i><i>a</i><i>l</i><i>u</i><i>t</i></div>
+    </div>
+    <div class="row flow__bottom">
+        <pre data-lang="js" class="small grow" data-hl="2:2 3:3 4:1">
+            Module.stdin  = () => stdio.stdin[stdio.read++] ?? null;
+            Module.stdout = (byte) => stdio.stdout.push(byte);
+            Module.stderr = (byte) => stdio.stderr.push(byte);
+        </pre>
+        <div class="flow__decoded" data-step="3" data-anim="pop"><small>TextDecoder</small><b>"Salut"</b></div>
+    </div>
+    <p class="lead small" data-step="4" data-anim="up"><span lang="fr"><code>stdin</code>, à l'envers : PHP demande un octet, JS le donne. <code>null</code> : c'est fini.</span><span lang="en"><code>stdin</code>, the other way around: PHP asks for a byte, JS gives it. <code>null</code>: it is over.</span></p>
+
+    <aside class="notes" lang="fr">
+        Quand PHP fait echo, ça descend jusqu'à la libc d'Emscripten, un write sur le descripteur 1.
+        [→] Et la glue JS appelle Module.stdout… une fois par octet !
+        [→] On les empile dans un tableau.
+        [→] À la fin de l'exécution, TextDecoder transforme les octets en chaîne UTF-8.
+        [→] stdin, c'est l'inverse : PHP demande l'octet suivant, null veut dire fin de fichier.
+    </aside>
+    <aside class="notes" lang="en">
+        When PHP does an echo, it goes down to the libc of Emscripten, a write on file descriptor 1.
+        [→] And the JS glue calls Module.stdout… once per byte!
+        [→] We push them in an array.
+        [→] At the end of the run, TextDecoder turns the bytes into a UTF-8 string.
+        [→] stdin is the other way around: PHP asks for the next byte, null means end of file.
+    </aside>
+</section>
+
+<section class="slide" id="api" data-title="L'API finale" data-title-en="The final API" data-steps="1">
+    <h2><span lang="fr">Et tout ça, pour <span class="riso">trois lignes</span></span><span lang="en">And all that, for <span class="riso">three lines</span></span></h2>
+    <div class="api">
+        <div class="api__code">
+            <pre lang="fr" data-lang="js" class="small">
+                import createPhp from './php-web.mjs';
+
+                const php = await createPhp();
+                const result = await php.runCode(
+                    'echo ucfirst(file_get_contents("php://stdin")), " ", $argv[1];',
+                    { stdin: 'salut', args: ['🐘'] },
+                );
+            </pre>
+            <pre lang="en" data-lang="js" class="small">
+                import createPhp from './php-web.mjs';
+
+                const php = await createPhp();
+                const result = await php.runCode(
+                    'echo ucfirst(file_get_contents("php://stdin")), " ", $argv[1];',
+                    { stdin: 'hello', args: ['🐘'] },
+                );
+            </pre>
+            <p class="small muted api__note"><span lang="fr"><code>runCode()</code> est écrit en JS, et injecté <b>dans</b> le module : <code>emcc --pre-js api.js</code></span><span lang="en"><code>runCode()</code> is written in JS, and injected <b>into</b> the module: <code>emcc --pre-js api.js</code></span></p>
+        </div>
+        <div class="api__result">
+            <button class="btn" type="button" id="api-run"><span lang="fr">▶ Exécuter</span><span lang="en">▶ Run</span></button>
+            <div class="api__out">
+                <pre class="output" id="api-output">{ … }</pre>
+                <span class="php-status"><span lang="fr">PHP démarre…</span><span lang="en">PHP is starting…</span></span>
+            </div>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Tout ce qu'on vient de voir est caché derrière une petite API : createPhp(), puis runCode() ou runFile().
+        On passe du code, des arguments, un stdin. On récupère le code de sortie, stdout et stderr.
+        [Cliquer sur Exécuter] : c'est le vrai PHP qui tourne, dans un worker de cette page.
+    </aside>
+    <aside class="notes" lang="en">
+        All we just saw is hidden behind a small API: createPhp(), then runCode() or runFile().
+        We pass code, arguments, a stdin. We get back the exit code, stdout and stderr.
+        [Click on Run]: this is the real PHP running, in a worker of this page.
+    </aside>
+</section>
+
+<!-- ============================================================ 05 LIVRER -->
+
+<section class="slide chapter" id="ch5" data-chrome="none" data-station="Livrer" data-station-en="Ship" data-time="16" style="--bg: var(--blue)">
+    <div class="chapter__num riso">05</div>
+    <h2 class="chapter__title"><span lang="fr">Embarquer son code,<br>et livrer</span><span lang="en">Embedding your code,<br>and shipping</span></h2>
+    <p class="chapter__sub"><span lang="fr">De votre projet à GitHub Pages</span><span lang="en">From your project to GitHub Pages</span></p>
+    <aside class="notes" lang="fr">Chapitre 5 : il reste à mettre NOTRE code dedans, et à le livrer.</aside>
+    <aside class="notes" lang="en">Chapter 5: we still have to put OUR code in it, and to ship it.</aside>
+</section>
+
+<section class="slide" id="fs" data-title="PHP ne voit pas votre disque" data-title-en="PHP does not see your disk">
+    <h2><span lang="fr">PHP ne voit pas <span class="hl-pink">votre</span> disque</span><span lang="en">PHP does not see <span class="hl-pink">your</span> disk</span></h2>
+    <div class="fs">
+        <ul class="tree">
+            <li class="tree__root">/</li>
+            <li data-states="1:hl 2:"><span>tmp/</span><small><span lang="fr">en mémoire</span><span lang="en">in memory</span></small></li>
+            <li data-states="2:hl 3:"><span>app/</span><small><span lang="fr">embarqué · lecture seule</span><span lang="en">embedded · read-only</span></small></li>
+            <li class="tree__sub" data-states="2:hl 3:"><span>src/ · vendor/</span></li>
+            <li data-states="2:hl 3:"><span>etc/ssl/openssl.cnf</span><small><span lang="fr">embarqué</span><span lang="en">embedded</span></small></li>
+            <li data-states="3:hl"><span>notes/</span><small>IndexedDB</small></li>
+        </ul>
+        <div class="fs__ways">
+            <div class="card" style="--c: var(--yellow)" data-step="1" data-anim="left">
+                <h3><span lang="fr">À l'exécution</span><span lang="en">At runtime</span></h3>
+                <pre data-lang="js" class="tiny">php.FS.writeFile('/tmp/in.json', data);</pre>
+            </div>
+            <div class="card" style="--c: var(--pink)" data-step="2" data-anim="left">
+                <h3><span lang="fr">Au build : dans le <code>.wasm</code></span><span lang="en">At build time: in the <code>.wasm</code></span></h3>
+                <pre data-lang="sh" class="tiny">
+                    $ composer install --no-dev --classmap-authoritative
+                    $ emcc … --embed-file ./build/embed@/app
+                </pre>
+            </div>
+            <div class="card" style="--c: var(--green)" data-step="3" data-anim="left">
+                <h3><span lang="fr">Qui survit au rechargement</span><span lang="en">That survives a reload</span></h3>
+                <pre data-lang="js" class="tiny">const php = await createPhp({ persist: '/notes' });</pre>
+                <p class="small"><span lang="fr">IndexedDB, et un verrou (Web Lock) entre les onglets.</span><span lang="en">IndexedDB, and a lock (Web Lock) between the tabs.</span></p>
+            </div>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        PHP a son propre système de fichiers, celui d'Emscripten, en mémoire. Il ne voit pas votre disque.
+        [→] On peut y écrire depuis JS, à l'exécution.
+        [→] Ou embarquer un dossier au moment du build : votre code, avec son vendor sans les dépendances de dev, se retrouve DANS le .wasm.
+        [→] Et un dossier peut être sauvé dans IndexedDB : l'exemple notes garde une base SQLite d'un rechargement à l'autre. Avec un verrou pour que deux onglets ne s'écrasent pas.
+    </aside>
+    <aside class="notes" lang="en">
+        PHP has its own file system, the one of Emscripten, in memory. It does not see your disk.
+        [→] JS can write to it, at runtime.
+        [→] Or a folder can be embedded at build time: your code, with its vendor without the dev dependencies, ends up IN the .wasm.
+        [→] And a folder can be saved in IndexedDB: the notes example keeps an SQLite database from one reload to the next. With a lock, so that two tabs do not overwrite each other.
+    </aside>
+</section>
+
+<section class="slide" id="stacks" data-title="Une stack, une commande" data-title-en="One stack, one command">
+    <h2><span lang="fr">Une <span class="riso">stack</span>, une commande</span><span lang="en">One <span class="riso">stack</span>, one command</span></h2>
+    <div class="grid cols-2 stacks">
+        <div>
+            <div class="code-label">stacks.php</div>
+            <pre data-lang="php" class="small" data-hl="1:1-5 2:8">
+                $default = Stack::named('default')
+                    ->php('8.5.12')
+                    ->extensions('ctype', 'dom', 'mbstring')
+                    ->embed('examples/embed', at: '/examples')
+                    ->targets('web', 'node');
+
+                return [$default,
+                    $default->renamed('intl')->extensions('intl')];
+            </pre>
+        </div>
+        <div class="stack-v">
+            <pre data-lang="sh" class="small" data-step="3" data-anim="left">
+                $ castor wasm:build intl
+                $ castor wasm:run -r 'echo PHP_VERSION;'
+                $ castor wasm:check
+                $ castor wasm:serve notes
+            </pre>
+            <p class="stacks__flow" data-step="4" data-anim="up">
+                <span class="pill">Stack</span> → <span class="pill">bake.json</span> → <span class="pill">docker buildx bake</span>
+            </p>
+            <p class="small" data-step="4" data-anim="up"><span lang="fr">Toutes les stacks en un appel, en parallèle, qui partagent leurs couches.</span><span lang="en">All the stacks in one call, in parallel, sharing their layers.</span></p>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Une stack, c'est une version de PHP, des extensions, un dossier à embarquer, des cibles : web et node.
+        [→] Immuable : on en dérive d'autres. Ici une stack intl.
+        [→] Castor les construit, les exécute, les vérifie, et sert les pages d'exemple.
+        [→] Castor ne sait pas compiler PHP : il écrit un fichier bake et lance docker buildx bake. Le Dockerfile reste la seule source de vérité.
+    </aside>
+    <aside class="notes" lang="en">
+        A stack is a PHP version, extensions, a folder to embed, targets: web and node.
+        [→] Immutable: other stacks are derived from it. Here an intl stack.
+        [→] Castor builds them, runs them, checks them, and serves the example pages.
+        [→] Castor does not know how to compile PHP: it writes a bake file and runs docker buildx bake. The Dockerfile stays the single source of truth.
+    </aside>
+</section>
+
+<section class="slide" id="project" data-title="Dans votre projet" data-title-en="In your project">
+    <h2><span lang="fr">Dans <span class="hl-pink">votre</span> projet</span><span lang="en">In <span class="hl-pink">your</span> project</span></h2>
+    <div class="project">
+        <div class="project__step" data-step="0">
+            <b>1</b>
+            <pre data-lang="sh" class="small">$ castor composer require lyrixx/php-wasm-builder</pre>
+        </div>
+        <div class="project__step" data-step="1" data-anim="up">
+            <b>2</b>
+            <pre data-lang="php" class="small">
+                function wasm_stack(): Stack
+                {
+                    return Stack::named('app')->extensions('ctype', 'mbstring')
+                        ->embed('build/embed', at: '/app')
+                        ->targets('web')->outputDir('public/build');
+                }
+                // castor wasm:build → build([wasm_stack()])
+            </pre>
+        </div>
+        <div class="project__step" data-step="2" data-anim="up">
+            <b>3</b>
+            <pre data-lang="js" class="small">
+                import createPhp from './build/php-web.mjs';
+                const { stdout } = await (await createPhp()).runFile('/app/src/page.php');
+            </pre>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Dans votre projet, trois étapes.
+        Le paquet s'installe avec castor composer require : pas de dépendance dans votre composer.json.
+        [→] Vous déclarez votre stack : vos extensions, votre code embarqué dans /app, la cible web.
+        [→] Et votre page importe le module et exécute votre fichier PHP.
+    </aside>
+    <aside class="notes" lang="en">
+        In your project, three steps.
+        The package is installed with castor composer require: no dependency in your composer.json.
+        [→] You declare your stack: your extensions, your code embedded in /app, the web target.
+        [→] And your page imports the module and runs your PHP file.
+    </aside>
+</section>
+
+<section class="slide" id="ship" data-title="Tester, et déployer" data-title-en="Test, and deploy">
+    <h2><span lang="fr">Tester, puis <span class="riso">déployer</span></span><span lang="en">Test, then <span class="riso">deploy</span></span></h2>
+    <div class="grid cols-2 ship">
+        <div class="stack-v">
+            <p><span lang="fr">Le build pour le web tourne aussi dans <b>node</b> :</span><span lang="en">The build for the web runs in <b>node</b> too:</span></p>
+            <pre data-lang="sh" class="tiny">
+                $ node --import ./node/fetch-files.mjs \
+                    --test tests/page.test.mjs
+            </pre>
+            <p class="small muted"><span lang="fr"><code>fetch()</code> lit les URL <code>file:</code> sur le disque, comme un serveur les servirait.</span><span lang="en"><code>fetch()</code> reads the <code>file:</code> URLs from the disk, as a server would serve them.</span></p>
+            <ul class="ship__checks">
+                <li><code>check_stack()</code> <span lang="fr">la version, les extensions</span><span lang="en">the version, the extensions</span></li>
+                <li><code>run_code()</code> <span lang="fr">du PHP, comme <code>runCode()</code></span><span lang="en">PHP code, like <code>runCode()</code></span></li>
+                <li><code>test_page()</code> <span lang="fr">le JS de la page</span><span lang="en">the JS of the page</span></li>
+            </ul>
+        </div>
+        <ol class="pipeline">
+            <li data-step="1" data-anim="left"><span>📤</span><b>git push</b></li>
+            <li data-step="2" data-anim="left"><span>🐳</span><b>castor wasm:build</b><small><span lang="fr">couches en cache GitHub Actions</span><span lang="en">layers cached by GitHub Actions</span></small></li>
+            <li data-step="3" data-anim="left"><span>✅</span><b>castor wasm:smoke</b><small><span lang="fr">ça démarre, ça répond ?</span><span lang="en">does it start, does it answer?</span></small></li>
+            <li data-step="4" data-anim="left"><span>🚀</span><b>GitHub Pages</b></li>
+        </ol>
+    </div>
+    <p class="punch bottom" data-step="5" data-anim="up"><span lang="fr">Rien n'est déployé s'il ne répond pas.</span><span lang="en">Nothing is deployed if it does not answer.</span></p>
+
+    <aside class="notes" lang="fr">
+        Pour tester, pas besoin de navigateur : le build web tourne dans node. fetch-files.mjs fait lire les fichiers au fetch() depuis le disque.
+        Trois fonctions castor : check_stack, run_code, test_page.
+        [→] En CI : un push, [→] un build avec le cache de GitHub Actions, donc seul ce qui change est recompilé, [→] un smoke test, [→] et le déploiement sur Pages.
+        [→] Si PHP ne répond pas, rien n'est déployé.
+    </aside>
+    <aside class="notes" lang="en">
+        To test, no need for a browser: the web build runs in node. fetch-files.mjs makes fetch() read the files from the disk.
+        Three castor functions: check_stack, run_code, test_page.
+        [→] In CI: a push, [→] a build with the cache of GitHub Actions, so only what changes is compiled again, [→] a smoke test, [→] and the deployment to Pages.
+        [→] If PHP does not answer, nothing is deployed.
+    </aside>
+</section>
+
+<!-- ============================================================ FINALE -->
+
+<section class="slide" id="repl" data-title="À vous de jouer" data-title-en="Your turn" data-time="18.5">
+    <h2><span lang="fr">À vous de <span class="riso">jouer</span></span><span lang="en">Your <span class="riso">turn</span></span></h2>
+    <div class="repl__presets" id="repl-presets"></div>
+    <div class="repl">
+        <div class="repl__editor">
+            <textarea id="repl-code" spellcheck="false" autocomplete="off" wrap="off" aria-label="Code PHP" aria-label-en="PHP code"></textarea>
+            <div class="repl__actions">
+                <button class="btn" type="button" id="repl-run"><span lang="fr">▶ Exécuter <kbd>Ctrl+Entrée</kbd></span><span lang="en">▶ Run <kbd>Ctrl+Enter</kbd></span></button>
+                <span class="php-status"><span lang="fr">PHP démarre…</span><span lang="en">PHP is starting…</span></span>
+            </div>
+        </div>
+        <div class="repl__out">
+            <pre class="output" id="repl-output"></pre>
+            <p class="output-meta" id="repl-meta"></p>
+        </div>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Démo live. Le code est modifiable, Ctrl+Entrée pour exécuter (Échap pour rendre la main au deck).
+        Essayer : la version, php_uname() qui avoue Emscripten, mb_strtoupper, DOM.
+        Les presets : la Fiber tue le module, il est recréé ; la boucle infinie est arrêtée au bout de 4 s, c'est un worker.
+    </aside>
+    <aside class="notes" lang="en">
+        Live demo. The code can be edited, Ctrl+Enter to run (Escape to give the keys back to the deck).
+        Try: the version, php_uname() that admits Emscripten, mb_strtoupper, DOM.
+        The presets: the Fiber kills the module, a new one is created; the infinite loop is stopped after 4 s, it is a worker.
+    </aside>
+</section>
+
+<section class="slide" id="recap" data-title="Récap" data-title-en="Recap">
+    <h2><span lang="fr">Récap : du C à votre page</span><span lang="en">Recap: from C to your page</span></h2>
+    <ol class="recap">
+        <li style="--c: var(--pink)"><code>php-src</code><small>+ libxml2, ICU…</small></li>
+        <li style="--c: var(--yellow)" data-step="1" data-anim="pop"><code>emconfigure</code><code>emmake</code><small><span lang="fr">compilés pour wasm32</span><span lang="en">compiled for wasm32</span></small></li>
+        <li style="--c: var(--violet)" data-step="2" data-anim="pop"><code>libphp.a</code><code>run.c</code><small><span lang="fr">la SAPI embed</span><span lang="en">the embed SAPI</span></small></li>
+        <li style="--c: var(--green)" data-step="3" data-anim="pop"><code>emcc --pre-js api.js</code><small><span lang="fr">l'édition de liens</span><span lang="en">the link</span></small></li>
+        <li style="--c: var(--blue)" data-step="4" data-anim="pop"><code>php-web.wasm</code><code>php-web.mjs</code><small><span lang="fr">deux fichiers statiques</span><span lang="en">two static files</span></small></li>
+        <li style="--c: var(--orange)" data-step="5" data-anim="pop"><code>runCode()</code><small><span lang="fr">pointeurs, octets, stdout</span><span lang="en">pointers, bytes, stdout</span></small></li>
+    </ol>
+    <p class="punch bottom" data-step="6" data-anim="up"><span lang="fr">🐘 PHP, dans la page. Sans serveur.</span><span lang="en">🐘 PHP, in the page. No server.</span></p>
+
+    <aside class="notes" lang="fr">
+        Le récap. Les sources de PHP et ses bibliothèques, compilées par Emscripten.
+        libphp avec notre run.c, l'édition de liens avec notre API JS injectée.
+        Deux fichiers statiques. Et runCode, qui copie des octets et en récupère d'autres.
+    </aside>
+    <aside class="notes" lang="en">
+        The recap. The sources of PHP and its libraries, compiled by Emscripten.
+        libphp with our run.c, the link with our JS API injected.
+        Two static files. And runCode, that copies bytes in and gets other bytes back.
+    </aside>
+</section>
+
+<section class="slide s-end" id="end" data-chrome="none" data-title="Merci" data-title-en="Thanks">
+    <div class="blob" style="--c: var(--pink); --size: 620px; left: -200px; top: -240px; opacity: .6"></div>
+    <div class="blob" style="--c: var(--yellow); --size: 520px; right: -140px; bottom: -220px"></div>
+    <h1 class="end-title"><span lang="fr"><span class="riso">Merci</span> 🐘</span><span lang="en"><span class="riso">Thanks</span> 🐘</span></h1>
+    <p class="end-repo mono">github.com/lyrixx/php-wasm-builder</p>
+    <p class="end-credits">
+        <span lang="fr">Le builder d'origine : <b>Derick Rethans</b>, pour la <b>PHP Foundation</b>.<br>
+        <code>run.c</code> vient du travail d'<b>Antoine Bluchet</b> (soyuka) sur PHP en WebAssembly.</span>
+        <span lang="en">The original builder: <b>Derick Rethans</b>, for the <b>PHP Foundation</b>.<br>
+        <code>run.c</code> comes from the work of <b>Antoine Bluchet</b> (soyuka) on PHP in WebAssembly.</span>
+    </p>
+    <p class="sticker end-sticker"><span lang="fr">Questions ?</span><span lang="en">Questions?</span></p>
+    <aside class="notes" lang="fr">Merci ! Le dépôt, les crédits : Derick Rethans et la PHP Foundation, Antoine Bluchet. Questions ?</aside>
+    <aside class="notes" lang="en">Thank you! The repository, the credits: Derick Rethans and the PHP Foundation, Antoine Bluchet. Questions?</aside>
+</section>
+
+</main>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
