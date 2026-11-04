@@ -55,24 +55,3 @@ once, and a translation sits next to its original:
 `js/i18n.js` removes the other language before anything reads the slides, and
 `t({ fr, en })` does the same for the texts of the JS. A text without `lang` is
 shown in both languages: keep it for code, names and numbers.
-
-## What is where
-
-- `castor.php`: the stack of PHP, and the tasks to build it, check it and serve
-  the slides;
-- `.github/workflows/pages.yaml`: builds PHP, with the layers cached by GitHub
-  Actions, checks it, and deploys `public/` to GitHub Pages;
-- `public/index.html`: the slides, and their notes (`<aside class="notes">`);
-- `public/js/deck.js`: the engine, see its first comment for the attributes of
-  the steps (`data-step`, `data-states`, `data-hl`…);
-- `public/js/demos.js`: what the slides do beyond steps: the WebAssembly module
-  of 41 bytes, the memory of the module, and PHP itself;
-- `public/js/php.js` and `public/js/php-worker.js`: PHP runs in a worker,
-  killed after 4 seconds, so that `while (true) {}` does not freeze the slides;
-- `public/js/i18n.js`: the language, see above;
-- `public/js/typo.js`: the typography (apostrophes, and the no-break spaces of
-  French): the slides are written with plain spaces;
-- `public/css/deck.css`: the theme and the engine, `public/css/slides.css`:
-  each slide;
-- `public/fonts/`: Unbounded, Figtree and JetBrains Mono, under the SIL Open
-  Font License.
