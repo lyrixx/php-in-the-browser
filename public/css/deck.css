@@ -72,6 +72,9 @@ body {
 
 body {
     display: grid;
+    /* An auto track would take the 1600px of the canvas: the canvas would not be
+       centered in a smaller window, and its scale() would push it out of it */
+    grid-template: 100% / 100%;
     place-items: center;
     color: var(--ink);
     font-family: var(--font-body);
