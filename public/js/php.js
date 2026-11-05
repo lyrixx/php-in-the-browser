@@ -1,48 +1,39 @@
-// The PHP of the deck: it runs in a worker (php-worker.js), killed and created
-// again when a run takes too long. Every .php-status of the deck says where it
-// is, every [data-php-version] gets its version.
+// The PHP of the deck: createPhpInWorker() runs it in a worker, terminated and
+// created again when a run takes too long, or aborts the module. Every
+// .php-status of the deck says where it is, every [data-php-version] gets its
+// version. The build is the one of wasm_stack(), in castor.php: "castor
+// wasm:build" writes it in ../build/.
 
 import { t } from './i18n.js';
 
 const TIMEOUT_MS = 4000;
+const NOT_RUN = { exitCode: null, stdout: '', stderr: '' };
 
-let worker;
+let runtime;
 let version;
 let state = 'loading';
 let ready;
-let nextId = 0;
-const pending = new Map();
 
-function spawn() {
-    worker = new Worker(new URL('./php-worker.js', import.meta.url), { type: 'module' });
-    ready = new Promise((resolve) => {
-        worker.addEventListener('message', function onBoot({ data }) {
-            if ('ready' === data.type) {
-                version = data.version;
-                setState('ready');
-                resolve(true);
-            } else if ('missing' === data.type) {
-                console.warn('PHP is not loaded, run "castor slides:serve":', data.message);
-                setState('missing');
-                resolve(false);
-            } else {
-                return;
-            }
-            worker.removeEventListener('message', onBoot);
-        });
-    });
-    worker.addEventListener('message', ({ data }) => {
-        if ('result' !== data.type || !pending.has(data.id)) {
-            return;
-        }
-        pending.get(data.id)(data);
-        pending.delete(data.id);
-    });
-    worker.addEventListener('error', (event) => {
-        console.warn('The PHP worker failed:', event.message);
+async function boot() {
+    setState('loading');
+    try {
+        const { createPhpInWorker } = await import('../build/php-web.mjs');
+        runtime = await createPhpInWorker();
+        ({ stdout: version } = await runtime.runCode('echo PHP_VERSION;'));
+        setState('ready');
+
+        return true;
+    } catch (error) {
+        console.warn('PHP is not loaded, run "castor slides:serve":', error);
         setState('missing');
-    });
-    worker.postMessage({ type: 'boot' });
+
+        return false;
+    }
+}
+
+function restart() {
+    runtime.terminate();
+    ready = boot();
 }
 
 function setState(next) {
@@ -53,7 +44,7 @@ function setState(next) {
             fr: {
                 loading: 'PHP démarre…',
                 ready: `PHP ${version} tourne dans cette page`,
-                missing: 'PHP absent\u00a0: castor slides:serve',
+                missing: 'PHP absent : castor slides:serve',
             },
             en: {
                 loading: 'PHP is starting…',
@@ -78,32 +69,46 @@ export const php = {
     },
 
     /**
-     * Runs some code, as php -r does: resolves with { exitCode, stdout,
-     * stderr, ms }, with timedOut or aborted when PHP did not get to the end.
+     * Calls PHP: resolves with what fn(runtime) resolves with, and ms. With
+     * missing, timedOut or aborted when PHP did not get to the end.
      */
-    async run(code, { args = [], stdin = '' } = {}) {
+    async call(fn) {
         if (!(await ready)) {
-            return { missing: true, exitCode: null, stdout: '', stderr: '' };
+            return { missing: true, ...NOT_RUN };
         }
 
-        const id = ++nextId;
-
-        return new Promise((resolve) => {
-            const timer = setTimeout(() => {
-                pending.delete(id);
-                worker.terminate();
-                setState('loading');
-                spawn();
-                resolve({ timedOut: true, exitCode: null, stdout: '', stderr: '' });
-            }, TIMEOUT_MS);
-            pending.set(id, (result) => {
-                clearTimeout(timer);
-                resolve(result);
-            });
-            worker.postMessage({ id, code, args, stdin });
+        let timer;
+        const timeout = new Promise((resolve) => {
+            timer = setTimeout(() => resolve({ timedOut: true, ...NOT_RUN }), TIMEOUT_MS);
         });
+        const startedAt = performance.now();
+        try {
+            const result = await Promise.race([fn(runtime), timeout]);
+            if (result?.timedOut) {
+                restart();
+
+                return result;
+            }
+
+            return { ...result, ms: performance.now() - startedAt };
+        } catch (error) {
+            // The module aborted (a Fiber, all of its stack): what is in its
+            // memory can not be trusted anymore, another one is created
+            restart();
+
+            return { aborted: true, ...NOT_RUN, stderr: String(error?.message ?? error) };
+        } finally {
+            clearTimeout(timer);
+        }
+    },
+
+    /**
+     * Runs some code, as php -r does: resolves with { exitCode, stdout,
+     * stderr, ms }, see call().
+     */
+    run(code, { args = [], stdin = '' } = {}) {
+        return this.call((runtime) => runtime.runCode(code, { args, stdin }));
     },
 };
 
-spawn();
-setState('loading');
+ready = boot();

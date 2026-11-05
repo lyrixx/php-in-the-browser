@@ -21,11 +21,13 @@ import { lang, switchLang, t } from './i18n.js';
 const WIDTH = 1600;
 const HEIGHT = 900;
 // The length of the talk, in minutes
-const BUDGET = 20;
+const BUDGET = 30;
 
 const hooks = new Map();
+const presenter = new URLSearchParams(location.search).has('presenter');
 
 export const deck = {
+    presenter,
     slides: [],
     index: 0,
     step: 0,
@@ -37,7 +39,6 @@ export const deck = {
     },
 };
 
-const presenter = new URLSearchParams(location.search).has('presenter');
 const channel = 'BroadcastChannel' in window ? new BroadcastChannel('php-wasm-deck') : null;
 
 const root = document.querySelector('.deck');

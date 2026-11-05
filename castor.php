@@ -6,7 +6,9 @@
 use Castor\Attribute\AsOption;
 use Castor\Attribute\AsTask;
 use Castor\Exception\ProblemException;
+use PhpWasm\Opcache;
 use PhpWasm\Stack;
+use PhpWasm\Target;
 use Symfony\Component\Console\Input\InputOption;
 
 use function Castor\check;
@@ -28,7 +30,9 @@ function wasm_stack(): Stack
     return Stack::named('slides')
         ->php('8.5.12')
         ->extensions('calendar', 'ctype', 'dom', 'mbstring', 'simplexml', 'xml', 'xmlreader', 'xmlwriter')
-        ->targets('web')
+        // The slide of opcache runs a file with it, and without it
+        ->opcache(Opcache::Runtime)
+        ->targets(Target::Web)
         ->outputDir('public/build');
 }
 

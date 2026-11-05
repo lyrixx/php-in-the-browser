@@ -1,13 +1,18 @@
 # PHP in the browser
 
-The slides of a 20 minute talk, in French and in English: how
+The slides of a 30 minute talk, in French and in English: how
 [php-wasm-builder](https://github.com/lyrixx/php-wasm-builder) compiles the
-PHP interpreter to WebAssembly, and how a page uses it. They run PHP live, in
-the page: <https://lyrixx.github.io/php-in-the-browser/>, and
+PHP interpreter to WebAssembly, how a page uses it, and how a whole Symfony
+application runs with no server. They run PHP live, in the page:
+<https://lyrixx.github.io/php-in-the-browser/>, and
 <https://lyrixx.github.io/php-in-the-browser/?lang=en> in English.
 
+The documentation of the builder is on its website:
+<https://lyrixx.github.io/php-wasm-builder/>.
+
 They are a static page, with no dependency, and they are built as any project
-that uses php-wasm-builder (see its "Using it from your own project"):
+that uses php-wasm-builder (see
+[Use it in your project](https://lyrixx.github.io/php-wasm-builder/your-project/)):
 `castor.php` declares the stack, and GitHub Actions builds it, checks it, and
 deploys the slides.
 
@@ -27,6 +32,11 @@ slides work without Docker and without network, on the day of the talk.
 
 Without `public/build/`, the slides still work: the live outputs show what PHP
 printed when they were written.
+
+The Symfony of the slide `sf-live` is the example of the website, in an iframe:
+it starts loading with its chapter. Without network, the slide keeps a
+screenshot, `public/img/symfony.png`. Once clicked, the iframe keeps the
+keyboard, until the mouse leaves it.
 
 ## Keys
 
