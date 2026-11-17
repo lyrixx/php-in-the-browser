@@ -340,8 +340,8 @@
 .live-grid {
     flex: 1;
     align-content: center;
-    gap: 44px;
-    margin-bottom: 80px;
+    gap: 26px 44px;
+    margin-bottom: 120px;
 }
 
 .live-grid .card {
@@ -350,7 +350,7 @@
     grid-template-rows: auto auto auto;
     column-gap: 24px;
     align-items: center;
-    padding: 30px 32px;
+    padding: 16px 32px;
 }
 
 .live-grid .emoji {
@@ -366,13 +366,14 @@
 
 .live-grid .mono {
     color: var(--ink-soft);
-    font-size: 20px;
+    font-size: 18px;
+    white-space: nowrap;
 }
 
 .live-sticker {
     position: absolute;
     right: 110px;
-    bottom: 120px;
+    bottom: 104px;
     background: var(--green);
     font-size: 28px;
 }
@@ -1706,11 +1707,11 @@
 .libs__table {
     justify-self: start;
     border-collapse: collapse;
-    font-size: 30px;
+    font-size: 27px;
 }
 
 .libs__table td {
-    padding: 12px 14px;
+    padding: 7px 14px;
 }
 
 .libs__table td:nth-child(2) {
@@ -1733,10 +1734,10 @@
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     width: 420px;
-    height: 440px;
-    padding: 16px;
+    height: 470px;
+    padding: 14px;
     border: 6px solid var(--ink);
     border-top: 6px dashed var(--ink);
     border-radius: 0 0 36px 36px;
@@ -1747,15 +1748,15 @@
     display: grid;
     flex: none;
     place-items: center;
-    height: 54px;
+    height: 40px;
     border: var(--line);
     border-radius: 12px;
-    font: 800 24px var(--font-display);
+    font: 800 21px var(--font-display);
 }
 
 .brick--php {
     width: 100%;
-    height: 80px;
+    height: 66px;
     background: var(--violet);
     color: var(--paper);
 }
@@ -1764,10 +1765,13 @@
 .brick--xml { width: 86%; background: #ff9cc6; }
 .brick--sqlite { width: 62%; background: #8fe3c4; }
 .brick--ssl { width: 78%; background: #a9cbff; }
+.brick--gd { width: 100%; background: #ffd9a8; font-size: 19px; }
+.brick--zip { width: 66%; background: #c6f1e1; }
+.brick--sodium { width: 54%; background: #e9e2ff; }
 
 .brick--icu {
     width: 100%;
-    height: 70px;
+    height: 56px;
     background: var(--orange);
 }
 
@@ -1780,7 +1784,7 @@
 .dag {
     position: relative;
     width: 1408px;
-    height: 430px;
+    height: 456px;
 }
 
 .dag__lines {
@@ -1900,7 +1904,7 @@
 
 .dag__legend {
     position: absolute;
-    top: 250px;
+    top: 300px;
     left: 0;
     display: grid;
     gap: 12px;
@@ -1932,7 +1936,7 @@
 }
 
 .dag__note {
-    margin-top: 30px;
+    margin-top: 14px;
 }
 
 /* Sizes */
@@ -3200,7 +3204,7 @@
 /* Where PHP runs */
 
 .where2 {
-    margin-top: 10px;
+    margin-top: 24px;
 }
 
 .where2__what {
@@ -3248,6 +3252,17 @@
     background: var(--yellow);
 }
 
+/* The function of the builder, stuck on each way */
+.where2__fn {
+    position: absolute;
+    top: -30px;
+    right: 26px;
+    padding: 6px 18px;
+    background: var(--paper);
+    font: 700 21px var(--font-mono);
+    transform: rotate(2deg);
+}
+
 .where2__chrome {
     display: flex;
     gap: 34px;
@@ -3280,7 +3295,120 @@
     font-size: 25px;
 }
 
-/* Problem 6: WARMUP */
+/* Problem 6: the memory, before and with Zend MM */
+
+.mm__tape {
+    position: relative;
+    flex: none;
+    height: 100px;
+    margin-top: 18px;
+    overflow: hidden;
+    border: var(--line);
+    border-radius: 16px;
+    background: #fffdf7;
+}
+
+.mm__tape > span {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    font-size: 24px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.mm__tape b {
+    padding: 4px 14px;
+    border-radius: 999px;
+    background: var(--paper);
+}
+
+.mm__data {
+    left: 0;
+    width: 200px;
+    background: #d6ccff;
+}
+
+.mm__malloc {
+    left: 200px;
+    width: 170px;
+    border-left: var(--line);
+    background: var(--yellow);
+    font-family: var(--font-mono);
+}
+
+.mm__leak {
+    left: 370px;
+    width: 0;
+    background: repeating-linear-gradient(135deg, var(--pink) 0 16px, var(--yellow) 16px 32px);
+    transition: width .4s;
+}
+
+.mm__tape[data-state='leak'] .mm__leak {
+    width: calc(100% - 370px);
+    transition: width 2.4s linear;
+}
+
+.mm__boom {
+    right: 18px;
+    font-size: 54px !important;
+    opacity: 0;
+    transition: opacity .2s;
+}
+
+.mm__tape[data-state='leak'] .mm__boom {
+    opacity: 1;
+    transition-delay: 2.4s;
+}
+
+/* Blocks of 2 MB, from the end of the memory */
+.mm__zend {
+    right: 0;
+    width: 0;
+    background: repeating-linear-gradient(90deg, #8fe3c4 0 66px, var(--ink) 66px 70px);
+    font-family: var(--font-mono);
+    transition: width .9s var(--ease-out);
+}
+
+.mm__tape[data-state='zend'] .mm__zend {
+    width: 560px;
+    box-shadow: inset 4px 0 0 var(--ink);
+}
+
+.mm__scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    color: var(--ink-soft);
+    font: 700 20px var(--font-mono);
+}
+
+.mm__say {
+    margin-top: 16px;
+}
+
+.mm__say .lead {
+    max-width: none;
+}
+
+.mm__live {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 36px;
+    align-items: start;
+    margin-top: 26px;
+}
+
+.mm__output {
+    min-height: 0;
+    font-size: 20px;
+    white-space: pre-wrap;
+}
+
+/* Problem 7: WARMUP */
 
 .warm {
     grid-template-columns: 1.1fr 1fr;
@@ -3296,7 +3424,7 @@
     line-height: 1.25;
 }
 
-/* Problem 6: opcache */
+/* Problem 7: opcache */
 
 .opc {
     display: grid;
@@ -3436,6 +3564,19 @@
 
 .perf__source code {
     font-size: .92em;
+}
+
+/* Back on a server: a Cloudflare Worker */
+
+.cf {
+    grid-template-columns: 1.15fr 1fr;
+    gap: 40px;
+    align-items: start;
+    margin-top: 12px;
+}
+
+.cf__facts {
+    margin: 0;
 }
 
 /* Symfony, live */

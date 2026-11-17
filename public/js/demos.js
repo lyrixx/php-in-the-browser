@@ -537,6 +537,56 @@ deck.on('sf-opcache', (step, slide, { entered, forward }) => {
 });
 
 /*
+ * The memory: going over memory_limit is a fatal error of PHP, and the next run
+ * of the same module starts with all of its memory.
+ */
+
+const FILL_MEMORY = '$strings = []; while (true) { $strings[] = str_repeat("x", 1000); }';
+
+// What PHP printed when the slide was written
+const MEMORY_FALLBACK = `// run 1 · exit 255
+Fatal error: Allowed memory size of 112197632 bytes exhausted (tried to allocate 2097152 bytes)
+
+// run 2 · exit 0
+memory_limit = 107M`;
+
+function printed(result) {
+    if (result.timedOut) {
+        return t({ fr: '⏱️ Toujours pas fini au bout de 4 s.', en: '⏱️ Still not done after 4 s.' });
+    }
+    if (result.aborted) {
+        return `💥 ${result.stderr}`;
+    }
+
+    // Without where it happened, and the stack trace that PHP 8.5 adds to a
+    // fatal error: the slide has no room for them
+    return (result.stdout + result.stderr).trim().split('\nStack trace:')[0].replace(/ in Command line code on line \d+$/, '');
+}
+
+async function runMemory() {
+    const button = $('#mm-run');
+    const output = $('#mm-output');
+    button.disabled = true;
+    output.textContent = '…';
+    const full = await php.run(FILL_MEMORY);
+    const next = await php.run('echo "memory_limit = ", ini_get("memory_limit");');
+    button.disabled = false;
+    if (full.missing) {
+        output.textContent = MEMORY_FALLBACK;
+
+        return;
+    }
+    output.textContent = `// run 1 · exit ${full.exitCode}\n${printed(full)}\n\n// run 2 · exit ${next.exitCode}\n${printed(next)}`;
+}
+
+$('#mm-run').addEventListener('click', runMemory);
+deck.on('sf-memory', (step, slide, { entered, forward }) => {
+    if (step >= 3 && (entered || (3 === step && forward))) {
+        runMemory();
+    }
+});
+
+/*
  * The Symfony of the example, live: its PHP takes a few seconds to download,
  * it starts with the chapter. The screenshot under the iframe stays without
  * network, the slides work without it on the day of the talk.

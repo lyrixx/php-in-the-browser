@@ -35,12 +35,12 @@
     <button class="lang-hint" type="button" data-switch-lang><kbd>L</kbd><span lang="fr">English version</span><span lang="en">version française</span></button>
 
     <aside class="notes" lang="fr">
-        Bonjour ! 20 minutes pour comprendre comment on fait tourner PHP dans un navigateur.
+        Bonjour ! 30 minutes pour comprendre comment on fait tourner PHP dans un navigateur.
         Le badge en bas à droite : ce deck exécute VRAIMENT PHP, en ce moment, dans cette page.
         On s'en servira plusieurs fois pendant le talk.
     </aside>
     <aside class="notes" lang="en">
-        Hello! 20 minutes to understand how PHP runs in a browser.
+        Hello! 30 minutes to understand how PHP runs in a browser.
         The badge at the bottom right: this deck REALLY runs PHP, right now, in this page.
         We will use it several times during the talk.
     </aside>
@@ -112,26 +112,40 @@
             <p class="mono small">jolitypo.jolicode.com</p>
             <p><span lang="fr">Corrige la microtypographie d'un texte.</span><span lang="en">Fixes the microtypography of a text.</span></p>
         </div>
-        <div class="card" style="--c: var(--violet)" data-step="3" data-anim="pop">
+        <div class="card" style="--c: var(--orange)" data-step="3" data-anim="pop">
+            <span class="emoji">📝</span>
+            <h3>Symfony Demo</h3>
+            <p class="mono small">lyrixx.github.io/php-wasm-demo/symfony-demo</p>
+            <p><span lang="fr">La démo officielle, telle quelle.</span><span lang="en">The official demo, as it is.</span></p>
+        </div>
+        <div class="card" style="--c: var(--blue)" data-step="4" data-anim="pop">
+            <span class="emoji">💿</span>
+            <h3>EasyAdmin</h3>
+            <p class="mono small">lyrixx.github.io/php-wasm-demo/easyadmin</p>
+            <p><span lang="fr">Le back-office d'un faux disquaire.</span><span lang="en">The back office of a fake record shop.</span></p>
+        </div>
+        <div class="card" style="--c: var(--violet)" data-step="5" data-anim="pop">
             <span class="emoji">📘</span>
             <h3>php.net</h3>
             <p class="mono small">php.net/manual · <span class="hl-orange"><span lang="fr">pas sur GitHub Pages</span><span lang="en">not on GitHub Pages</span></span></p>
             <p><span lang="fr">Les exemples s'exécutent dans la page.</span><span lang="en">The examples run in the page.</span></p>
         </div>
     </div>
-    <p class="sticker live-sticker" data-step="4" data-anim="pop"><span lang="fr">Les trois premiers sur GitHub Pages : zéro serveur PHP</span><span lang="en">The first three on GitHub Pages: zero PHP server</span></p>
+    <p class="sticker live-sticker" data-step="6" data-anim="pop"><span lang="fr">Les cinq premiers sur GitHub Pages : zéro serveur PHP</span><span lang="en">The first five on GitHub Pages: zero PHP server</span></p>
 
     <aside class="notes" lang="fr">
         Ce n'est pas un jouet : ces pages tournent avec ce builder.
         emoji-converter, composer-diff, JoliTypo : du code PHP existant, réutilisé tel quel.
+        Et des applications Symfony entières : la Symfony Demo officielle, avec son admin, Doctrine, SQLite et 30 langues, et un back-office EasyAdmin, avec son dashboard de ventes. On verra comment au chapitre 6.
         La doc php.net : le builder d'origine, de Derick Rethans pour la PHP Foundation, fabrique ses .wasm. Elle n'est pas sur GitHub Pages, mais ses exemples tournent dans la page.
-        [→] Les trois premiers sont hébergés sur GitHub Pages : du statique, aucun serveur PHP.
+        [→] Les cinq premiers sont hébergés sur GitHub Pages : du statique, aucun serveur PHP.
     </aside>
     <aside class="notes" lang="en">
         It is not a toy: these pages run with this builder.
         emoji-converter, composer-diff, JoliTypo: existing PHP code, reused as is.
+        And whole Symfony applications: the official Symfony Demo, with its admin, Doctrine, SQLite and 30 languages, and an EasyAdmin back office, with its sales dashboard. We will see how in chapter 6.
         The php.net docs: the original builder, by Derick Rethans for the PHP Foundation, makes its .wasm. They are not on GitHub Pages, but their examples run in the page.
-        [→] The first three are hosted on GitHub Pages: static files, no PHP server.
+        [→] The first five are hosted on GitHub Pages: static files, no PHP server.
     </aside>
 </section>
 
@@ -728,10 +742,16 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
             <tr data-step="3" data-anim="left"><td><code>pdo_sqlite</code> <code>sqlite3</code></td><td>→</td><td><b>SQLite</b></td></tr>
             <tr data-step="4" data-anim="left"><td><code>openssl</code></td><td>→</td><td><b>OpenSSL</b></td></tr>
             <tr data-step="5" data-anim="left"><td><code>intl</code></td><td>→</td><td><b>ICU</b></td></tr>
+            <tr data-step="6" data-anim="left"><td><code>gd</code></td><td>→</td><td><b>libpng</b> · <b>libjpeg-turbo</b> · <b>libwebp</b></td></tr>
+            <tr data-step="7" data-anim="left"><td><code>zip</code> <code>zlib</code></td><td>→</td><td><b>libzip</b> · <b>zlib</b></td></tr>
+            <tr data-step="8" data-anim="left"><td><code>sodium</code></td><td>→</td><td><b>libsodium</b></td></tr>
         </table>
         <div class="jar">
             <span class="jar__label">php-web.wasm</span>
             <div class="jar__body">
+                <span class="brick brick--sodium" data-step="8" data-anim="drop" style="--r: 7deg">libsodium</span>
+                <span class="brick brick--zip" data-step="7" data-anim="drop" style="--r: -5deg">libzip · zlib</span>
+                <span class="brick brick--gd" data-step="6" data-anim="drop" style="--r: 9deg">libpng · libjpeg-turbo · libwebp</span>
                 <span class="brick brick--icu" data-step="5" data-anim="drop" style="--r: -8deg">ICU</span>
                 <span class="brick brick--ssl" data-step="4" data-anim="drop" style="--r: 10deg">OpenSSL</span>
                 <span class="brick brick--sqlite" data-step="3" data-anim="drop" style="--r: -12deg">SQLite</span>
@@ -741,16 +761,18 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
             </div>
         </div>
     </div>
-    <p class="lead bottom" data-step="6" data-anim="up"><span lang="fr">Compilées elles aussi avec <code>emcc</code>. Pas de <code>.so</code>, pas de <code>dlopen()</code> : <strong>tout dans un seul fichier.</strong></span><span lang="en">Compiled with <code>emcc</code> too. No <code>.so</code>, no <code>dlopen()</code>: <strong>all in one file.</strong></span></p>
+    <p class="lead bottom" data-step="9" data-anim="up"><span lang="fr">Compilées elles aussi avec <code>emcc</code>. Pas de <code>.so</code>, pas de <code>dlopen()</code> : <strong>tout dans un seul fichier.</strong></span><span lang="en">Compiled with <code>emcc</code> too. No <code>.so</code>, no <code>dlopen()</code>: <strong>all in one file.</strong></span></p>
 
     <aside class="notes" lang="fr">
         Les extensions s'appuient sur des libs C. Il faut donc les compiler, elles aussi, en WebAssembly.
         [→] mbstring a besoin d'oniguruma, [→] les extensions XML de libxml2, [→] SQLite, [→] OpenSSL, [→] et intl d'ICU.
+        [→] gd, de trois libs : une par format d'image, PNG, JPEG, WebP. [→] zip et zlib, de libzip et zlib : zlib sert aussi à libpng. [→] Et sodium, de libsodium.
         [→] Et il n'y a pas de chargement dynamique : pas de .so. Tout est lié en statique, dans un seul .wasm.
     </aside>
     <aside class="notes" lang="en">
         Extensions rely on C libraries. So they must be compiled to WebAssembly too.
         [→] mbstring needs oniguruma, [→] the XML extensions need libxml2, [→] SQLite, [→] OpenSSL, [→] and intl needs ICU.
+        [→] gd needs three libraries: one per image format, PNG, JPEG, WebP. [→] zip and zlib need libzip and zlib: zlib serves libpng too. [→] And sodium needs libsodium.
         [→] And there is no dynamic loading: no .so. Everything is linked statically, into a single .wasm.
     </aside>
 </section>
@@ -759,38 +781,38 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
     <p class="kicker">docker/Dockerfile</p>
     <h2><span lang="fr">Une chaîne de <span class="riso">montage</span></span><span lang="en">An assembly <span class="riso">line</span></span></h2>
     <div class="dag">
-        <svg class="dag__lines" viewBox="0 0 1408 430" aria-hidden="true">
-            <path d="M704 66 L 302 130"/>
-            <path d="M704 66 L 506 130"/>
-            <path d="M704 66 L 710 130"/>
-            <path d="M704 66 L 914 130"/>
-            <path d="M704 66 L 1118 130"/>
-            <path d="M704 66 L 1322 130"/>
-            <path d="M98 196 L 704 250"/>
-            <path d="M302 196 L 704 250"/>
-            <path d="M506 196 L 704 250"/>
-            <path d="M710 196 L 704 250"/>
-            <path d="M914 196 L 704 250"/>
-            <path d="M1118 196 L 704 250"/>
-            <path d="M1322 196 L 704 250"/>
-            <path d="M704 316 L 704 360"/>
-            <path d="M794 393 L 940 393"/>
+        <!-- Two rows of libraries: a bus above them, from resolve, and one below, to php. The lines of a row go through the gaps of the other one. -->
+        <svg class="dag__lines" viewBox="0 0 1408 456" aria-hidden="true">
+            <path d="M704 66 V 86 M98 86 H 1322 M704 272 V 290"/>
+            <path d="M98 86 V 104 M302 86 V 104 M506 86 V 104 M710 86 V 104 M914 86 V 104 M1118 86 V 104 M1322 86 V 104"/>
+            <path d="M200 86 V 190 M404 86 V 190 M608 86 V 190 M812 86 V 190 M1016 86 V 190 M1220 86 V 190"/>
+            <path d="M98 170 V 272 M302 170 V 272 M506 170 V 272 M710 170 V 272 M914 170 V 272 M1118 170 V 272 M1322 170 V 272"/>
+            <path d="M200 256 V 272 M404 256 V 272 M608 256 V 272 M812 256 V 272 M1016 256 V 272 M1220 256 V 272"/>
+            <path d="M98 272 H 1322"/>
+            <path d="M704 356 V 386"/>
+            <path d="M794 419 H 940"/>
         </svg>
         <div class="dag__args" data-step="1" data-anim="right">
             <code data-until="2">EXTENSIONS="mbstring dom"</code>
             <code data-step="2">EXTENSIONS="mbstring dom <b>intl</b>"</code>
         </div>
         <div class="stage" style="left: 614px; top: 0" data-states="1:run"><b>resolve</b><small><span lang="fr">le plan</span><span lang="en">the plan</span></small></div>
-        <div class="stage" style="left: 8px; top: 130px" data-states="1:build 2:cached"><b>php-src</b><small>git clone</small></div>
-        <div class="stage" style="left: 212px; top: 130px" data-states="1:build 2:cached"><b>oniguruma</b></div>
-        <div class="stage" style="left: 416px; top: 130px" data-states="1:build 2:cached"><b>libxml2</b></div>
-        <div class="stage" style="left: 620px; top: 130px" data-states="1:skip 2:build"><b>icu</b></div>
-        <div class="stage" style="left: 824px; top: 130px" data-states="1:skip 2:cached"><b>libiconv</b></div>
-        <div class="stage" style="left: 1028px; top: 130px" data-states="1:skip 2:cached"><b>openssl</b></div>
-        <div class="stage" style="left: 1232px; top: 130px" data-states="1:skip 2:cached"><b>sqlite</b></div>
-        <div class="stage" style="left: 614px; top: 250px" data-states="1:build"><b>php</b><small>configure + make</small></div>
-        <div class="stage" style="left: 614px; top: 360px" data-states="1:build"><b>link</b><small>emcc → .wasm</small></div>
-        <div class="dag__out" style="left: 950px; top: 368px">📦 <code>php-web.mjs</code> <code>php-web.wasm</code></div>
+        <div class="stage" style="left: 8px; top: 104px" data-states="1:build 2:cached"><b>php-src</b><small>git clone</small></div>
+        <div class="stage" style="left: 212px; top: 104px" data-states="1:build 2:cached"><b>oniguruma</b></div>
+        <div class="stage" style="left: 416px; top: 104px" data-states="1:build 2:cached"><b>libxml2</b></div>
+        <div class="stage" style="left: 620px; top: 104px" data-states="1:skip 2:build"><b>icu</b></div>
+        <div class="stage" style="left: 824px; top: 104px" data-states="1:skip 2:cached"><b>libiconv</b></div>
+        <div class="stage" style="left: 1028px; top: 104px" data-states="1:skip 2:cached"><b>openssl</b></div>
+        <div class="stage" style="left: 1232px; top: 104px" data-states="1:skip 2:cached"><b>sqlite</b></div>
+        <div class="stage" style="left: 110px; top: 190px" data-states="1:skip 2:cached"><b>zlib</b></div>
+        <div class="stage" style="left: 314px; top: 190px" data-states="1:skip 2:cached"><b>libpng</b></div>
+        <div class="stage" style="left: 518px; top: 190px" data-states="1:skip 2:cached"><b>libjpeg</b></div>
+        <div class="stage" style="left: 722px; top: 190px" data-states="1:skip 2:cached"><b>libwebp</b></div>
+        <div class="stage" style="left: 926px; top: 190px" data-states="1:skip 2:cached"><b>libzip</b></div>
+        <div class="stage" style="left: 1130px; top: 190px" data-states="1:skip 2:cached"><b>libsodium</b></div>
+        <div class="stage" style="left: 614px; top: 290px" data-states="1:build"><b>php</b><small>configure + make</small></div>
+        <div class="stage" style="left: 614px; top: 386px" data-states="1:build"><b>link</b><small>emcc → .wasm</small></div>
+        <div class="dag__out" style="left: 950px; top: 394px">📦 <code>php-web.mjs</code> <code>php-web.wasm</code></div>
         <div class="dag__legend" data-step="1" data-anim="up">
             <span class="dag__key dag__key--build"><span lang="fr">compile</span><span lang="en">builds</span></span>
             <span class="dag__key dag__key--skip"><span lang="fr">rien à faire</span><span lang="en">nothing to do</span></span>
@@ -800,13 +822,13 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
     <p class="lead dag__note" data-step="2" data-anim="up"><span lang="fr">Chaque étape ne lit que <strong>son</strong> bout du plan : Docker ne refait que ce qui a changé.</span><span lang="en">Each stage reads only <strong>its</strong> part of the plan: Docker only redoes what changed.</span></p>
 
     <aside class="notes" lang="fr">
-        Le Dockerfile est découpé en étapes : une par lib, puis PHP, puis le link.
+        Le Dockerfile est découpé en étapes : une par lib, douze aujourd'hui, puis PHP, puis le link.
         [→] Première étape, resolve : elle transforme la liste des extensions en un « plan », fait de petits fichiers. Avec mbstring et dom, on compile oniguruma et libxml2, les autres étapes ne font rien.
         [→] Si j'ajoute intl : seule ICU se compile, puis PHP et le link. Le reste sort du cache Docker.
         C'est pour ça que le plan est fait de petits fichiers : chaque étape ne dépend que du sien.
     </aside>
     <aside class="notes" lang="en">
-        The Dockerfile is split into stages: one per library, then PHP, then the link.
+        The Dockerfile is split into stages: one per library, twelve today, then PHP, then the link.
         [→] First stage, resolve: it turns the list of extensions into a "plan", made of small files. With mbstring and dom, oniguruma and libxml2 are compiled, the other stages do nothing.
         [→] If I add intl: only ICU compiles, then PHP and the link. The rest comes from the Docker cache.
         That is why the plan is made of small files: each stage only depends on its own.
@@ -819,7 +841,7 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
         <div class="bar" style="--w: 6.1; --gz: 2.3"><span class="bar__name">PHP 8.3</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">6,1 Mo <small>2,3 gzip</small></span><span lang="en">6.1 MB <small>2.3 gzip</small></span></span></div>
         <div class="bar" style="--w: 7.5; --gz: 2.8"><span class="bar__name">PHP 8.4</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">7,5 Mo <small>2,8 gzip</small></span><span lang="en">7.5 MB <small>2.8 gzip</small></span></span></div>
         <div class="bar bar--default" style="--w: 8.7; --gz: 3"><span class="bar__name">PHP 8.5 <small><span lang="fr">défaut</span><span lang="en">default</span></small></span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">8,7 Mo <small>3,0 gzip</small></span><span lang="en">8.7 MB <small>3.0 gzip</small></span></span></div>
-        <div class="bar" style="--w: 17.5; --gz: 6.7"><span class="bar__name"><span lang="fr">tout, sauf ICU</span><span lang="en">all, but ICU</span></span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">17,5 Mo <small>6,7 gzip</small></span><span lang="en">17.5 MB <small>6.7 gzip</small></span></span></div>
+        <div class="bar" style="--w: 19.3; --gz: 7.2"><span class="bar__name"><span lang="fr">tout, sauf ICU</span><span lang="en">all, but ICU</span></span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">19,3 Mo <small>7,2 gzip</small></span><span lang="en">19.3 MB <small>7.2 gzip</small></span></span></div>
         <div class="bar" style="--w: 30.5; --gz: 7.2"><span class="bar__name">Symfony</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">30,5 Mo <small>7,2 gzip</small></span><span lang="en">30.5 MB <small>7.2 gzip</small></span></span></div>
         <div class="bar bar--icu" style="--w: 41.7; --gz: 16.3"><span class="bar__name">+ intl, ICU</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">41,7 Mo <small>16,3 gzip</small></span><span lang="en">41.7 MB <small>16.3 gzip</small></span></span></div>
     </div>
@@ -968,7 +990,7 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
         [→] On réserve de la place dans la mémoire du module avec malloc. Il renvoie une adresse : juste un nombre.
         [→] On copie les octets à cette adresse.
         [→] On appelle run_code avec ce nombre : côté C, c'est un char*, il lit jusqu'au zéro.
-        [→] Et on libère. C'est exactement ce que fait api.js.
+        [→] Et on libère. C'est ce que fait api.js, avec une précaution de plus : quand la mémoire est pleine, malloc() renvoie 0. Et en WebAssembly, 0 est une adresse valide : on y écrirait sans erreur.
     </aside>
     <aside class="notes" lang="en">
         The problem: run_code wants a char*, and WebAssembly only knows numbers. We cannot pass it a JS string.
@@ -976,7 +998,7 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
         [→] We reserve space in the memory of the module with malloc. It returns an address: just a number.
         [→] We copy the bytes to this address.
         [→] We call run_code with this number: on the C side, it is a char*, it reads up to the zero.
-        [→] And we free it. That is exactly what api.js does.
+        [→] And we free it. That is what api.js does, with one more precaution: when the memory is full, malloc() returns 0. And in WebAssembly, 0 is a valid address: writing there raises no error.
     </aside>
 </section>
 
@@ -1296,19 +1318,19 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
 <section class="slide chapter" id="ch6" data-chrome="none" data-station="Symfony" data-time="18.5" style="--bg: var(--orange); --fg: var(--ink); --ink2: var(--paper)">
     <div class="chapter__num riso">06</div>
     <h2 class="chapter__title"><span lang="fr">Un vrai Symfony,<br>sans serveur</span><span lang="en">A real Symfony,<br>no server</span></h2>
-    <p class="chapter__sub"><span lang="fr">Six problèmes, six astuces</span><span lang="en">Six problems, six tricks</span></p>
+    <p class="chapter__sub"><span lang="fr">Sept problèmes, sept astuces</span><span lang="en">Seven problems, seven tricks</span></p>
     <aside class="notes" lang="fr">
         Chapitre 6 : pour de vrai. Un livre d'or en Symfony 8 : Doctrine, SQLite, Twig, des formulaires, du CSRF, une session. Une application normale, 3 932 fichiers PHP.
-        Sur GitHub Pages. Six problèmes à résoudre.
+        Sur GitHub Pages. Sept problèmes à résoudre.
     </aside>
     <aside class="notes" lang="en">
         Chapter 6: for real. A guestbook in Symfony 8: Doctrine, SQLite, Twig, forms, CSRF, a session. A normal application, 3,932 PHP files.
-        On GitHub Pages. Six problems to solve.
+        On GitHub Pages. Seven problems to solve.
     </aside>
 </section>
 
 <section class="slide" id="sf-crash" data-title="Problème 1 : ça explose" data-title-en="Problem 1: it blows up">
-    <p class="kicker"><span lang="fr">Problème 1 / 6</span><span lang="en">Problem 1 / 6</span></p>
+    <p class="kicker"><span lang="fr">Problème 1 / 7</span><span lang="en">Problem 1 / 7</span></p>
     <h2><span lang="fr">Premier essai : <span class="hl-pink">ça explose</span></span><span lang="en">First try: <span class="hl-pink">it blows up</span></span></h2>
     <pre class="output is-error crash__error">$ bin/console cache:warmup
 RuntimeError: null function or function signature mismatch</pre>
@@ -1344,7 +1366,7 @@ RuntimeError: null function or function signature mismatch</pre>
 </section>
 
 <section class="slide" id="sf-request" data-title="Problème 2 : une requête, pas un script" data-title-en="Problem 2: a request, not a script">
-    <p class="kicker"><span lang="fr">Problème 2 / 6</span><span lang="en">Problem 2 / 6</span></p>
+    <p class="kicker"><span lang="fr">Problème 2 / 7</span><span lang="en">Problem 2 / 7</span></p>
     <h2><span lang="fr">Symfony veut une <span class="riso">requête</span></span><span lang="en">Symfony wants a <span class="riso">request</span></span></h2>
     <div class="req">
         <div class="stack-v">
@@ -1402,7 +1424,7 @@ RuntimeError: null function or function signature mismatch</pre>
 </section>
 
 <section class="slide" id="sf-sw" data-title="Problème 3 : personne ne répond" data-title-en="Problem 3: nobody answers">
-    <p class="kicker"><span lang="fr">Problème 3 / 6</span><span lang="en">Problem 3 / 6</span></p>
+    <p class="kicker"><span lang="fr">Problème 3 / 7</span><span lang="en">Problem 3 / 7</span></p>
     <h2><span lang="fr">Un lien, un formulaire… <span class="hl-pink">qui répond ?</span></span><span lang="en">A link, a form… <span class="hl-pink">who answers?</span></span></h2>
     <div class="sw">
         <div class="sw__box sw__browser"><span>🌐</span><b><span lang="fr">navigateur</span><span lang="en">browser</span></b><code>GET /messages</code></div>
@@ -1443,7 +1465,7 @@ RuntimeError: null function or function signature mismatch</pre>
 </section>
 
 <section class="slide" id="sf-worker" data-title="Problème 4 : la page gèle" data-title-en="Problem 4: the page freezes">
-    <p class="kicker"><span lang="fr">Problème 4 / 6</span><span lang="en">Problem 4 / 6</span></p>
+    <p class="kicker"><span lang="fr">Problème 4 / 7</span><span lang="en">Problem 4 / 7</span></p>
     <h2><span lang="fr">PHP travaille, la page <span class="hl-pink">gèle</span></span><span lang="en">PHP works, the page <span class="hl-pink">freezes</span></span></h2>
     <div class="wk">
         <div class="wk__demo">
@@ -1487,6 +1509,7 @@ RuntimeError: null function or function signature mismatch</pre>
     <h2><span lang="fr">Alors, PHP tourne <span class="riso">où</span> ?</span><span lang="en">So, <span class="riso">where</span> does PHP run?</span></h2>
     <div class="grid cols-2 where2">
         <div class="card" style="--c: var(--yellow)">
+            <p class="sticker where2__fn" data-step="3" data-anim="pop">serveInFrame()</p>
             <h3><span lang="fr">Dans un Web Worker</span><span lang="en">In a Web Worker</span></h3>
             <p class="where2__what"><span lang="fr">Un thread lancé par la page : il meurt avec elle.</span><span lang="en">A thread started by the page: it dies with it.</span></p>
             <p class="where2__app"><span lang="fr">🖼️ Symfony s'affiche dans une iframe.</span><span lang="en">🖼️ Symfony shows in an iframe.</span></p>
@@ -1498,6 +1521,7 @@ RuntimeError: null function or function signature mismatch</pre>
             </ol>
         </div>
         <div class="card" style="--c: var(--pink)" data-step="1" data-anim="pop">
+            <p class="sticker where2__fn" data-step="3" data-anim="pop">serveInServiceWorker()</p>
             <h3><span lang="fr">Dans le service worker</span><span lang="en">In the service worker</span></h3>
             <p class="where2__what"><span lang="fr">Un proxy devant le réseau, géré par le navigateur.</span><span lang="en">A network proxy, run by the browser.</span></p>
             <p class="where2__app"><span lang="fr">🌐 Symfony a sa propre page.</span><span lang="en">🌐 Symfony has its own page.</span></p>
@@ -1518,22 +1542,24 @@ RuntimeError: null function or function signature mismatch</pre>
         Dans un Web Worker : Symfony s'affiche dans une iframe. Le service worker intercepte chaque requête de l'iframe, et la relaie à la page parente. C'est elle qui garde PHP, dans son Web Worker, et la réponse refait le chemin inverse. Le service worker ne garde rien : un navigateur peut l'arrêter n'importe quand.
         [→] Dans le service worker : Symfony a sa propre page, et PHP tourne dans le service worker lui-même. Un maillon au lieu de trois. La barre d'adresse, l'historique, tout est normal.
         [→] Le prix : Chrome arrête un service worker qui n'a rien à faire, au bout de 30 secondes. PHP meurt avec lui. La requête suivante le redémarre en quelques centaines de millisecondes, et la base SQLite, dans IndexedDB, n'a pas bougé.
+        [→] Dans le builder, chaque façon tient en une fonction. serveInFrame() : la page démarre le service worker et ouvre l'iframe, et le sw.js tient en deux lignes, importScripts() de php-sw.js, puis forwardToPhp(). serveInServiceWorker() : le service worker démarre PHP à la première requête, et répond à toutes.
     </aside>
     <aside class="notes" lang="en">
         The Symfony example does both, with the same application. And despite the name, they are not the same thing. A Web Worker is a thread a page starts to work on the side: it dies with the page. A service worker is a proxy between the page and the network: the browser starts it and stops it.
         In a Web Worker: Symfony shows in an iframe. The service worker intercepts each request of the iframe, and hands it to the parent page. The page is what keeps PHP, in its Web Worker, and the response goes back the same way. The service worker keeps nothing: a browser may stop it at any time.
         [→] In the service worker: Symfony has its own page, and PHP runs in the service worker itself. One link instead of three. The address bar, the history, all of it is normal.
         [→] The price: Chrome stops a service worker that has nothing to do, after 30 seconds. PHP dies with it. The next request starts it again in a few hundred milliseconds, and the SQLite database, in IndexedDB, has not moved.
+        [→] In the builder, each one is one function. serveInFrame(): the page starts the service worker and opens the iframe, and sw.js is two lines, importScripts() of php-sw.js, then forwardToPhp(). serveInServiceWorker(): the service worker starts PHP with the first request, and answers all of them.
     </aside>
 </section>
 
 <section class="slide" id="sf-traps" data-title="Problème 5 : ce que le navigateur cache" data-title-en="Problem 5: what the browser hides">
-    <p class="kicker"><span lang="fr">Problème 5 / 6</span><span lang="en">Problem 5 / 6</span></p>
+    <p class="kicker"><span lang="fr">Problème 5 / 7</span><span lang="en">Problem 5 / 7</span></p>
     <h2><span lang="fr">Ce que le navigateur <span class="hl-pink">cache</span></span><span lang="en">What the browser <span class="hl-pink">hides</span></span></h2>
     <div class="grid cols-2 traps">
         <div class="card" style="--c: var(--yellow)">
             <h3>🍪 <code>Set-Cookie</code></h3>
-            <p><span lang="fr">Jeté de toute réponse fabriquée par un service worker. On garde les cookies à la main : <code>localStorage</code>, Cache API.</span><span lang="en">Dropped from any response that a service worker makes. We keep the cookies by hand: <code>localStorage</code>, the Cache API.</span></p>
+            <p><span lang="fr">Jeté de toute réponse fabriquée par un service worker. Les cookies sont gardés à côté : <code>localStorage</code>, Cache API.</span><span lang="en">Dropped from any response that a service worker makes. The cookies are kept aside: <code>localStorage</code>, the Cache API.</span></p>
         </div>
         <div class="card" style="--c: var(--pink)" data-step="1" data-anim="pop">
             <h3>📨 <code>Cookie</code></h3>
@@ -1548,27 +1574,70 @@ RuntimeError: null function or function signature mismatch</pre>
             <p><span lang="fr">Tous vos repos partagent une origine : le service worker ne parle qu'à sa page.</span><span lang="en">All your repositories share one origin: the service worker only talks to its own page.</span></p>
         </div>
     </div>
+    <p class="punch bottom" data-step="4" data-anim="up"><span lang="fr"><code>serveInFrame()</code> et <code>serveInServiceWorker()</code> s'en chargent.</span><span lang="en"><code>serveInFrame()</code> and <code>serveInServiceWorker()</code> handle it.</span></p>
 
     <aside class="notes" lang="fr">
         (Optionnelle : Shift+→ pour la sauter si on est en retard.)
         Un navigateur n'est pas un serveur web : il protège ses cookies. Il jette le Set-Cookie d'une réponse qu'un service worker a fabriquée.
-        Donc on les garde nous-mêmes, et on les rend à chaque requête : dans le localStorage pour la page, dans la Cache API pour le service worker.
+        Donc il faut les garder à côté, et les rendre à chaque requête : dans le localStorage pour la page, dans la Cache API pour le service worker, qui n'a pas de localStorage.
         [→] Il jette aussi le header Cookie d'une Request. D'où une API qui prend de simples données.
         [→] Le Referer n'apparaît pas dans les headers : la protection CSRF sans état de Symfony le vérifie quand il n'y a pas d'Origin. On le rend à PHP.
         [→] Et sur github.io, tous vos repos sont sur la même origine : ce deck et l'exemple aussi. Le service worker vérifie donc à quelle page il parle.
+        [→] Tout ça, vous n'avez pas à l'écrire : les deux fonctions du builder s'en chargent.
     </aside>
     <aside class="notes" lang="en">
         (Optional: Shift+→ to skip it when late.)
         A browser is not a web server: it protects its cookies. It drops the Set-Cookie of a response that a service worker made.
-        So we keep them ourselves, and give them back to each request: in localStorage for the page, in the Cache API for the service worker.
+        So they have to be kept aside, and given back to each request: in localStorage for the page, in the Cache API for the service worker, that has no localStorage.
         [→] It also drops the Cookie header of a Request. Hence an API that takes plain data.
         [→] The Referer does not show up in the headers: the stateless CSRF protection of Symfony checks it when there is no Origin. We give it back to PHP.
         [→] And on github.io, all your repositories are on the same origin: this deck and the example too. So the service worker checks which page it talks to.
+        [→] You do not have to write any of it: the two functions of the builder take care of it.
     </aside>
 </section>
 
-<section class="slide" id="sf-warmup" data-title="Problème 6 : c'est lent" data-title-en="Problem 6: it is slow">
-    <p class="kicker"><span lang="fr">Problème 6 / 6</span><span lang="en">Problem 6 / 6</span></p>
+<section class="slide" id="sf-memory" data-title="Problème 6 : il meurt" data-title-en="Problem 6: it dies">
+    <p class="kicker"><span lang="fr">Problème 6 / 7</span><span lang="en">Problem 6 / 7</span></p>
+    <h2><span lang="fr">1 900 requêtes, <span class="hl-pink">et il meurt</span></span><span lang="en">1,900 requests, <span class="hl-pink">and it dies</span></span></h2>
+    <div class="mm__tape" data-states="1:leak 2:zend">
+        <span class="mm__data"><span lang="fr">code, données</span><span lang="en">code, data</span></span>
+        <span class="mm__malloc">malloc() →</span>
+        <span class="mm__leak"><b><span lang="fr">ce que chaque run oublie</span><span lang="en">what each run forgets</span></b></span>
+        <span class="mm__boom">💥</span>
+        <span class="mm__zend"><b><span lang="fr">← Zend MM · blocs de 2 Mo</span><span lang="en">← Zend MM · blocks of 2 MB</span></b></span>
+    </div>
+    <p class="mm__scale"><span>0</span><span><span lang="fr">128 Mo</span><span lang="en">128 MB</span></span></p>
+    <div class="swap mm__say">
+        <p class="lead" data-until="1"><span lang="fr">PHP tournait avec <code>USE_ZEND_ALLOC=0</code> : il allouait avec <code>malloc()</code>, comme n'importe quel programme C.</span><span lang="en">PHP ran with <code>USE_ZEND_ALLOC=0</code>: it allocated with <code>malloc()</code>, as any C program.</span></p>
+        <p class="lead" data-step="1" data-until="2"><span lang="fr">PHP compte sur son allocateur pour tout jeter à la fin d'une requête. Avec <code>malloc()</code>, ce qu'il oublie reste. <strong>La mémoire se remplit.</strong></span><span lang="en">PHP counts on its allocator to throw it all away at the end of a request. With <code>malloc()</code>, what it forgets stays. <strong>The memory fills up.</strong></span></p>
+        <p class="lead" data-step="2"><span lang="fr"><b>Zend MM</b>, l'allocateur de PHP : des blocs de 2 Mo, pris à la fin de la mémoire. Le run fini, il les rend <strong>tous</strong>.</span><span lang="en"><b>Zend MM</b>, the allocator of PHP: blocks of 2 MB, taken from the end of the memory. Once the run is over, it gives back <strong>all</strong> of them.</span></p>
+    </div>
+    <div class="mm__live" data-step="3" data-anim="up">
+        <div class="stack-v">
+            <button class="btn" type="button" id="mm-run"><span lang="fr">▶ Dépasser memory_limit</span><span lang="en">▶ Go over memory_limit</span></button>
+            <pre data-lang="php" class="tiny">$stack->ini(['memory_limit' => '64M']);</pre>
+        </div>
+        <pre class="output mm__output" id="mm-output">…</pre>
+    </div>
+
+    <aside class="notes" lang="fr">
+        Celui-là, on l'a trouvé tard : l'exemple Symfony mourait au bout d'environ 1 900 requêtes.
+        Jusque-là, PHP tournait avec USE_ZEND_ALLOC=0 : il allouait avec le malloc() de la libc, comme n'importe quel programme C.
+        [→] Le problème : PHP compte sur son allocateur, Zend MM, pour tout jeter d'un coup à la fin d'une requête. Avec malloc(), ce qu'il ne libère pas lui-même reste. Requête après requête, les 128 Mo se remplissent, et le module meurt.
+        [→] Pourquoi pas Zend MM dès le début ? Il prend sa mémoire par blocs de 2 Mo alignés. Avec le mmap() d'Emscripten, il perdait 4 Mo à chaque démarrage, et avec malloc(), la moitié de la mémoire. Alors run.c lui donne ses blocs lui-même : à la fin de la mémoire, en descendant, pendant que malloc() monte depuis le début. Le run fini, tout est rendu.
+        [→] Et en prime, memory_limit marche : 107 Mo par défaut, les 7/8 de ce qui reste au module, le reste est pour la libc, SQLite, libxml. En direct : on le dépasse, c'est une erreur fatale de PHP, et le run suivant repart avec toute la mémoire. Une stack le change avec ini().
+    </aside>
+    <aside class="notes" lang="en">
+        This one was found late: the Symfony example died after about 1,900 requests.
+        Until then, PHP ran with USE_ZEND_ALLOC=0: it allocated with the malloc() of the libc, as any C program.
+        [→] The problem: PHP counts on its allocator, Zend MM, to throw it all away at the end of a request. With malloc(), what it does not free itself stays. Request after request, the 128 MB fill up, and the module dies.
+        [→] Why not Zend MM from the start? It takes its memory in aligned blocks of 2 MB. With the mmap() of Emscripten, it lost 4 MB at each start, and with malloc(), half of the memory. So run.c gives it its blocks itself: from the end of the memory, going down, while malloc() goes up from the start. Once the run is over, all of it is given back.
+        [→] And as a bonus, memory_limit works: 107 MB by default, 7/8 of what the module has left, the rest is for the libc, SQLite, libxml. Live: we go over it, it is a fatal error of PHP, and the next run starts with all of the memory. A stack changes it with ini().
+    </aside>
+</section>
+
+<section class="slide" id="sf-warmup" data-title="Problème 7 : c'est lent" data-title-en="Problem 7: it is slow">
+    <p class="kicker"><span lang="fr">Problème 7 / 7</span><span lang="en">Problem 7 / 7</span></p>
     <h2><span lang="fr">Lancer PHP… <span class="riso">pendant le build</span></span><span lang="en">Running PHP… <span class="riso">during the build</span></span></h2>
     <div class="grid cols-2 warm">
         <div>
@@ -1612,7 +1681,7 @@ RuntimeError: null function or function signature mismatch</pre>
 </section>
 
 <section class="slide" id="sf-opcache" data-title="opcache, sans mémoire partagée" data-title-en="opcache, without shared memory">
-    <p class="kicker"><span lang="fr">Problème 6 / 6, suite</span><span lang="en">Problem 6 / 6, continued</span></p>
+    <p class="kicker"><span lang="fr">Problème 7 / 7, suite</span><span lang="en">Problem 7 / 7, continued</span></p>
     <h2><span lang="fr"><code class="big-code">opcache</code>, sans mémoire partagée</span><span lang="en"><code class="big-code">opcache</code>, without shared memory</span></h2>
     <div class="opc">
         <div class="stack-v">
@@ -1625,6 +1694,7 @@ RuntimeError: null function or function signature mismatch</pre>
             <ul class="opc__tricks" data-step="3" data-anim="up">
                 <li><span lang="fr">Ce qui est embarqué date du <code>1970-01-01 00:00:01</code> : caché dès le premier run.</span><span lang="en">What is embedded dates from <code>1970-01-01 00:00:01</code>: cached from the first run.</span></li>
                 <li><span lang="fr">Deux bugs de PHP contournés dans <code>run.c</code> : <code>php-src#24184</code>, <code>#25195</code>.</span><span lang="en">Two bugs of PHP worked around in <code>run.c</code>: <code>php-src#24184</code>, <code>#25195</code>.</span></li>
+                <li><span lang="fr">Un troisième, corrigé par un patch : <code>#24745</code>.</span><span lang="en">A third one, fixed by a patch: <code>#24745</code>.</span></li>
             </ul>
         </div>
         <div class="opc__live" data-step="2" data-anim="left">
@@ -1644,6 +1714,7 @@ RuntimeError: null function or function signature mismatch</pre>
         [→] En direct : ce deck a opcache. On génère un gros fichier PHP. Sans opcache, chaque run le compile. Avec, le premier compile et écrit, donc il est plus lent. Le deuxième lit : environ 5 fois plus vite que sans opcache.
         [→] Deux détails. opcache regarde la date des fichiers, et ne cache pas ce qui a moins de 2 secondes : ce qui est embarqué date donc de 1970.
         Et deux bugs de PHP trouvés en route : un system_id qui change entre deux démarrages, corrigé après 8.5.12, et un pointeur vers une variable morte, sans mémoire partagée. Issue ouverte, contournée dans run.c.
+        Un troisième, trouvé avec Symfony : sur 32 bits, le file cache cassait les attributs des constantes, comme le #[Deprecated] de symfony/polyfill-uuid. PHP plantait. Corrigé dans PHP 8.5.13 : le build applique ce correctif à 8.5.12 et avant.
     </aside>
     <aside class="notes" lang="en">
         Remember run.c: each run starts PHP and stops it. And opcache keeps its opcodes in shared memory, that does not exist here. It does not even start.
@@ -1651,6 +1722,7 @@ RuntimeError: null function or function signature mismatch</pre>
         [→] Live: this deck has opcache. We generate a big PHP file. Without opcache, each run compiles it. With it, the first one compiles and writes, so it is slower. The second one reads: about 5 times faster than without opcache.
         [→] Two details. opcache looks at the date of the files, and does not cache what is less than 2 seconds old: so what is embedded dates from 1970.
         And two bugs of PHP found on the way: a system_id that changes between two starts, fixed after 8.5.12, and a pointer to a dead variable, without shared memory. An open issue, worked around in run.c.
+        A third one, found with Symfony: on 32 bits, the file cache broke the attributes of constants, as the #[Deprecated] of symfony/polyfill-uuid. PHP crashed. Fixed in PHP 8.5.13: the build applies this fix to 8.5.12 and before.
     </aside>
 </section>
 
@@ -1750,6 +1822,52 @@ RuntimeError: null function or function signature mismatch</pre>
         [→] And there is no PHP server: GitHub Pages, static files.
         [→] The address, to try it on your phone, right now.
         If the network does not follow, the iframe stays a screenshot: the demo is there to be shown, not to block the talk.
+    </aside>
+</section>
+
+<section class="slide" id="cloudflare" data-title="De retour sur un serveur" data-title-en="Back on a server">
+    <p class="kicker">Cloudflare Worker</p>
+    <h2><span lang="fr">Et de retour <span class="riso">sur un serveur</span></span><span lang="en">And back <span class="riso">on a server</span></span></h2>
+    <div class="grid cols-2 cf">
+        <div>
+            <div class="code-label">worker.mjs</div>
+            <pre data-lang="js" class="tiny" data-hl="1:1-2,7-9 2:">
+                import createPhp from './build/php-web.mjs';
+                import phpWasm from './build/php-web.wasm';
+
+                let php;
+                export default {
+                    async fetch(request) {
+                        php ??= createPhp({ instantiateWasm … });
+                        const { status, headers, body } =
+                            await (await php).request({ … });
+
+                        return new Response(body, { status, headers });
+                    },
+                };
+            </pre>
+        </div>
+        <ol class="pipeline cf__facts">
+            <li data-step="1" data-anim="left"><span>📦</span><b><span lang="fr">Le même <code>php-web.mjs</code></span><span lang="en">The same <code>php-web.mjs</code></span></b><small><span lang="fr">le build pour le web, tel quel</span><span lang="en">the build for the web, as it is</span></small></li>
+            <li data-step="2" data-anim="left"><span>🧠</span><b><code>->memory('64mb')</code></b><small><span lang="fr">128 Mo pour le module et JavaScript, ensemble</span><span lang="en">128 MB for the module and JavaScript, together</span></small></li>
+            <li data-step="3" data-anim="left"><span>⏱️</span><b><span lang="fr">10 ms de CPU par requête</span><span lang="en">10 ms of CPU per request</span></b><small><span lang="fr">plan gratuit · une API d'audit : 37 ms, en médiane</span><span lang="en">Free plan · an audit API: 37 ms, the median</span></small></li>
+        </ol>
+    </div>
+    <p class="punch bottom" data-step="4" data-anim="up"><span lang="fr">Compilé pour le navigateur… et ça répond à <code>curl</code>.</span><span lang="en">Compiled for the browser… and it answers <code>curl</code>.</span></p>
+
+    <aside class="notes" lang="fr">
+        Un dernier détour. Une page fait tourner PHP chez celui qui la lit : rien ne répond à curl. Un Cloudflare Worker, lui, exécute du WebAssembly sur les serveurs de Cloudflare.
+        [→] Le build pour le web y tourne tel quel. wrangler compile le .wasm qu'on importe, et instantiateWasm le donne à Emscripten. Puis c'est php.request(), comme dans le service worker. PHP est créé par la première requête : Cloudflare ne donne qu'une seconde à un Worker pour démarrer.
+        [→] La mémoire : les 128 Mo d'un Worker sont pour le module et pour JavaScript, ensemble. Donc une stack à 64 Mo.
+        [→] Le CPU : 10 ms par requête sur le plan gratuit. Une API qui audite un document, avec une lib de 3 000 classes : 37 ms pour la moitié des requêtes. Cloudflare tolère un dépassement de temps en temps, mais une API qui sert, c'est le plan payant.
+        [→] Le PHP qu'on a compilé pour le navigateur… répond à curl.
+    </aside>
+    <aside class="notes" lang="en">
+        One last detour. A page runs PHP in the browser of who reads it: nothing answers curl. A Cloudflare Worker, though, runs WebAssembly on the servers of Cloudflare.
+        [→] The build for the web runs there as it is. wrangler compiles the .wasm that is imported, and instantiateWasm gives it to Emscripten. Then it is php.request(), as in the service worker. PHP is created by the first request: Cloudflare gives a Worker only one second to start.
+        [→] The memory: the 128 MB of a Worker are for the module and for JavaScript, together. So a stack of 64 MB.
+        [→] The CPU: 10 ms per request on the Free plan. An API that audits a document, with a library of 3,000 classes: 37 ms for half of the requests. Cloudflare tolerates going over it from time to time, but an API that is used needs the Paid plan.
+        [→] The PHP we compiled for the browser… answers curl.
     </aside>
 </section>
 
