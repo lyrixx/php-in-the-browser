@@ -74,7 +74,7 @@ function slides_serve(
     }
 
     io()->success([
-        "The slides are on http://127.0.0.1:{$port}/, and in English on http://127.0.0.1:{$port}/?lang=en",
+        "The slides are on http://127.0.0.1:{$port}/, and in French on http://127.0.0.1:{$port}/?lang=fr",
         'P opens the presenter view, N shows the notes, L switches the language. Ctrl+C stops the server.',
         'castor wasm:build builds PHP again, after a change of wasm_stack().',
     ]);

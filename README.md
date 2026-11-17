@@ -5,7 +5,7 @@ The slides of a 30 minute talk, in French and in English: how
 PHP interpreter to WebAssembly, how a page uses it, and how a whole Symfony
 application runs with no server. They run PHP live, in the page:
 <https://lyrixx.github.io/php-in-the-browser/>, and
-<https://lyrixx.github.io/php-in-the-browser/?lang=en> in English.
+<https://lyrixx.github.io/php-in-the-browser/?lang=fr> in French.
 
 The documentation of the builder is on its website:
 <https://lyrixx.github.io/php-wasm-builder/>.
@@ -51,7 +51,7 @@ The URL keeps the slide and the step: `#25.3` is the step 3 of the slide 25.
 
 ## Languages
 
-French by default, English with `?lang=en` (or `L`). Both languages live side
+English by default, French with `?lang=fr` (or `L`). Both languages live side
 by side in `index.html`, so the slides, their steps and their code are written
 once, and a translation sits next to its original:
 

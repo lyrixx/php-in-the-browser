@@ -1,4 +1,4 @@
-// The language of the slides: ?lang=en, French by default. Both languages are
+// The language of the slides: ?lang=fr, English by default. Both languages are
 // side by side in index.html, and this module, imported first, keeps one:
 //   <span lang="fr">…</span><span lang="en">…</span>   a text: the wrapper of
 //                                                      the kept one is removed
@@ -9,7 +9,7 @@
 const LANGS = ['fr', 'en'];
 const asked = new URLSearchParams(location.search).get('lang');
 
-export const lang = LANGS.includes(asked) ? asked : 'fr';
+export const lang = LANGS.includes(asked) ? asked : 'en';
 
 /**
  * The text of the current language: t({ fr: 'Salut', en: 'Hello' })
