@@ -28,7 +28,7 @@ defined('CASTOR_USE_CHDIR') || define('CASTOR_USE_CHDIR', true);
 function wasm_stack(): Stack
 {
     return Stack::named('slides')
-        ->php('8.5.12')
+        ->php('8.6.0')
         ->extensions('calendar', 'ctype', 'dom', 'mbstring', 'simplexml', 'xml', 'xmlreader', 'xmlwriter')
         // The slide of opcache runs a file with it, and without it
         ->opcache(Opcache::Runtime)

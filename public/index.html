@@ -838,12 +838,12 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
 <section class="slide" id="sizes" data-title="Combien ça pèse ?" data-title-en="How big is it?">
     <h2><span lang="fr">Combien ça pèse ?</span><span lang="en">How big is it?</span></h2>
     <div class="sizes">
-        <div class="bar" style="--w: 6.1; --gz: 2.3"><span class="bar__name">PHP 8.3</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">6,1 Mo <small>2,3 gzip</small></span><span lang="en">6.1 MB <small>2.3 gzip</small></span></span></div>
         <div class="bar" style="--w: 7.5; --gz: 2.8"><span class="bar__name">PHP 8.4</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">7,5 Mo <small>2,8 gzip</small></span><span lang="en">7.5 MB <small>2.8 gzip</small></span></span></div>
-        <div class="bar bar--default" style="--w: 8.7; --gz: 3"><span class="bar__name">PHP 8.5 <small><span lang="fr">défaut</span><span lang="en">default</span></small></span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">8,7 Mo <small>3,0 gzip</small></span><span lang="en">8.7 MB <small>3.0 gzip</small></span></span></div>
-        <div class="bar" style="--w: 19.3; --gz: 7.2"><span class="bar__name"><span lang="fr">tout, sauf ICU</span><span lang="en">all, but ICU</span></span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">19,3 Mo <small>7,2 gzip</small></span><span lang="en">19.3 MB <small>7.2 gzip</small></span></span></div>
-        <div class="bar" style="--w: 30.5; --gz: 7.2"><span class="bar__name">Symfony</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">30,5 Mo <small>7,2 gzip</small></span><span lang="en">30.5 MB <small>7.2 gzip</small></span></span></div>
-        <div class="bar bar--icu" style="--w: 41.7; --gz: 16.3"><span class="bar__name">+ intl, ICU</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">41,7 Mo <small>16,3 gzip</small></span><span lang="en">41.7 MB <small>16.3 gzip</small></span></span></div>
+        <div class="bar" style="--w: 8.7; --gz: 3"><span class="bar__name">PHP 8.5</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">8,7 Mo <small>3,0 gzip</small></span><span lang="en">8.7 MB <small>3.0 gzip</small></span></span></div>
+        <div class="bar bar--default" style="--w: 8.7; --gz: 3.1"><span class="bar__name">PHP 8.6 <small><span lang="fr">défaut</span><span lang="en">default</span></small></span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">8,7 Mo <small>3,1 gzip</small></span><span lang="en">8.7 MB <small>3.1 gzip</small></span></span></div>
+        <div class="bar" style="--w: 19.8; --gz: 7.4"><span class="bar__name"><span lang="fr">tout, sauf ICU</span><span lang="en">all, but ICU</span></span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">19,8 Mo <small>7,4 gzip</small></span><span lang="en">19.8 MB <small>7.4 gzip</small></span></span></div>
+        <div class="bar" style="--w: 30.6; --gz: 7.2"><span class="bar__name">Symfony</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">30,6 Mo <small>7,2 gzip</small></span><span lang="en">30.6 MB <small>7.2 gzip</small></span></span></div>
+        <div class="bar bar--icu" style="--w: 41.9; --gz: 16.4"><span class="bar__name">+ intl, ICU</span><span class="bar__track"><i></i><i></i></span><span class="bar__value"><span lang="fr">41,9 Mo <small>16,4 gzip</small></span><span lang="en">41.9 MB <small>16.4 gzip</small></span></span></div>
     </div>
     <div class="icu-trick" data-step="1" data-anim="up">
         <p><span lang="fr"><b>32 Mo</b> de données ICU, toutes les langues, en array C avec <code>#embed</code> (C23) :</span><span lang="en"><b>32 MB</b> of ICU data, every language, as a C array with <code>#embed</code> (C23):</span></p>
@@ -855,12 +855,12 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
     </div>
 
     <aside class="notes" lang="fr">
-        Le prix à payer : la taille. 8,7 Mo pour PHP 8.5 avec les extensions par défaut, 3 Mo compressé. Une grosse image. Une application Symfony entière, avec son vendor : 7 Mo compressés.
+        Le prix à payer : la taille. 8,7 Mo pour PHP 8.6 avec les extensions par défaut, 3 Mo compressé. Une grosse image. Une application Symfony entière, avec son vendor : 7 Mo compressés.
         intl est le plus lourd : ICU embarque les données de toutes les langues.
         [→] L'astuce : ces 32 Mo de données sont transformés en array C avec #embed, une nouveauté de C23. Pas de fichier à télécharger à côté.
     </aside>
     <aside class="notes" lang="en">
-        The price to pay: the size. 8.7 MB for PHP 8.5 with the default extensions, 3 MB compressed. A big image. A whole Symfony application, with its vendor: 7 MB compressed.
+        The price to pay: the size. 8.7 MB for PHP 8.6 with the default extensions, 3 MB compressed. A big image. A whole Symfony application, with its vendor: 7 MB compressed.
         intl is the heaviest: ICU embeds the data of every language.
         [→] The trick: these 32 MB of data become a C array with #embed, new in C23. No file to download next to it.
     </aside>
@@ -1191,19 +1191,19 @@ instance.exports.<span class="tok-f">add</span>(<input id="b41-a" type="number" 
         <div>
             <div class="code-label">stacks.php</div>
             <pre data-lang="php" class="small" data-hl="1:1-4 2:7-8">
-                $php85 = Stack::named('php-8.5')
-                    ->php('8.5.12')
+                $php86 = Stack::named('php-8.6')
+                    ->php('8.6.0')
                     ->extensions('ctype', 'dom', 'mbstring')
                     ->targets(Target::Web, Target::Node);
 
-                return [$php85,
-                    $php85->renamed('php-8.5-intl')
+                return [$php86,
+                    $php86->renamed('php-8.6-intl')
                         ->extensions('intl')];
             </pre>
         </div>
         <div class="stack-v">
             <pre data-lang="sh" class="small" data-step="3" data-anim="left">
-                $ castor wasm:build php-8.5-intl
+                $ castor wasm:build php-8.6-intl
                 $ castor wasm:run -r 'echo PHP_VERSION;'
                 $ castor wasm:check
                 $ castor wasm:serve symfony
@@ -1693,8 +1693,8 @@ RuntimeError: null function or function signature mismatch</pre>
             <p class="small" data-step="1" data-anim="up"><span lang="fr">Les opcodes vont dans des <b>fichiers</b>, que les runs suivants lisent.</span><span lang="en">The opcodes go in <b>files</b>, that the next runs read.</span></p>
             <ul class="opc__tricks" data-step="3" data-anim="up">
                 <li><span lang="fr">Ce qui est embarqué date du <code>1970-01-01 00:00:01</code> : caché dès le premier run.</span><span lang="en">What is embedded dates from <code>1970-01-01 00:00:01</code>: cached from the first run.</span></li>
-                <li><span lang="fr">Deux bugs de PHP contournés dans <code>run.c</code> : <code>php-src#24184</code>, <code>#25195</code>.</span><span lang="en">Two bugs of PHP worked around in <code>run.c</code>: <code>php-src#24184</code>, <code>#25195</code>.</span></li>
-                <li><span lang="fr">Un troisième, corrigé par un patch : <code>#24745</code>.</span><span lang="en">A third one, fixed by a patch: <code>#24745</code>.</span></li>
+                <li><span lang="fr">Deux bugs de PHP, corrigés dans PHP 8.5.13 : <code>php-src#24184</code>, <code>#24745</code>.</span><span lang="en">Two bugs of PHP, fixed in PHP 8.5.13: <code>php-src#24184</code>, <code>#24745</code>.</span></li>
+                <li><span lang="fr">Un troisième, contourné dans <code>run.c</code> : <code>#25195</code>.</span><span lang="en">A third one, worked around in <code>run.c</code>: <code>#25195</code>.</span></li>
             </ul>
         </div>
         <div class="opc__live" data-step="2" data-anim="left">
@@ -1713,16 +1713,16 @@ RuntimeError: null function or function signature mismatch</pre>
         [→] Mais PHP sait garder les opcodes dans des fichiers : file_cache_only. Dans le système de fichiers du WASM, dans /opcache.
         [→] En direct : ce deck a opcache. On génère un gros fichier PHP. Sans opcache, chaque run le compile. Avec, le premier compile et écrit, donc il est plus lent. Le deuxième lit : environ 5 fois plus vite que sans opcache.
         [→] Deux détails. opcache regarde la date des fichiers, et ne cache pas ce qui a moins de 2 secondes : ce qui est embarqué date donc de 1970.
-        Et deux bugs de PHP trouvés en route : un system_id qui change entre deux démarrages, corrigé après 8.5.12, et un pointeur vers une variable morte, sans mémoire partagée. Issue ouverte, contournée dans run.c.
-        Un troisième, trouvé avec Symfony : sur 32 bits, le file cache cassait les attributs des constantes, comme le #[Deprecated] de symfony/polyfill-uuid. PHP plantait. Corrigé dans PHP 8.5.13 : le build applique ce correctif à 8.5.12 et avant.
+        Et trois bugs de PHP trouvés en route. Un system_id qui changeait entre deux démarrages. Et, trouvé avec Symfony : sur 32 bits, le file cache cassait les attributs des constantes, comme le #[Deprecated] de symfony/polyfill-uuid. PHP plantait. Les deux sont corrigés dans PHP 8.5.13 : opcache demande cette version.
+        Le troisième : un pointeur vers une variable morte, sans mémoire partagée. Corrigé dans PHP, mais pas encore dans une version sortie : contourné dans run.c.
     </aside>
     <aside class="notes" lang="en">
         Remember run.c: each run starts PHP and stops it. And opcache keeps its opcodes in shared memory, that does not exist here. It does not even start.
         [→] But PHP can keep the opcodes in files: file_cache_only. In the filesystem of the WASM, in /opcache.
         [→] Live: this deck has opcache. We generate a big PHP file. Without opcache, each run compiles it. With it, the first one compiles and writes, so it is slower. The second one reads: about 5 times faster than without opcache.
         [→] Two details. opcache looks at the date of the files, and does not cache what is less than 2 seconds old: so what is embedded dates from 1970.
-        And two bugs of PHP found on the way: a system_id that changes between two starts, fixed after 8.5.12, and a pointer to a dead variable, without shared memory. An open issue, worked around in run.c.
-        A third one, found with Symfony: on 32 bits, the file cache broke the attributes of constants, as the #[Deprecated] of symfony/polyfill-uuid. PHP crashed. Fixed in PHP 8.5.13: the build applies this fix to 8.5.12 and before.
+        And three bugs of PHP found on the way. A system_id that changed between two starts. And, found with Symfony: on 32 bits, the file cache broke the attributes of constants, as the #[Deprecated] of symfony/polyfill-uuid. PHP crashed. Both are fixed in PHP 8.5.13: opcache needs this version.
+        The third one: a pointer to a dead variable, without shared memory. Fixed in PHP, but not in a release yet: worked around in run.c.
     </aside>
 </section>
 
