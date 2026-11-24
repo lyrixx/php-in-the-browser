@@ -81,3 +81,40 @@ function slides_serve(
 
     return run(['php', '-S', "127.0.0.1:{$port}", '-t', __DIR__ . '/public'], context: context()->withAllowFailure())->getExitCode();
 }
+
+#[AsTask('social-image', namespace: 'slides', description: 'Renders public/img/social-image.png, what a link to the slides shows, from their title slide, with Chrome')]
+function slides_social_image(): void
+{
+    $image = __DIR__ . '/public/img/social-image.png';
+
+    // Next to index.html, for its CSS and its JS. Without what only makes sense
+    // in the deck: the switch of language, PHP starting, the number of the slide
+    $page = __DIR__ . '/public/social-image.html';
+    file_put_contents($page, str_replace(
+        '</head>',
+        "<style>.lang-hint, .slide-number, .title-live { display: none !important }</style>\n</head>",
+        file_get_contents(__DIR__ . '/public/index.html'),
+    ));
+
+    try {
+        run(
+            [
+                // The size of the deck: scaled, its canvas leaves a line of the page
+                'google-chrome', '--headless=new', '--disable-gpu', '--hide-scrollbars', '--window-size=1600,900',
+                // A profile of its own: Chrome may already run with the usual one
+                '--user-data-dir=' . __DIR__ . '/build/chrome',
+                // Or the JS modules and the fonts do not load from file://
+                '--allow-file-access-from-files',
+                // The fonts, and the JS that removes the other language
+                '--virtual-time-budget=3000',
+                '--screenshot=' . $image,
+                'file://' . $page,
+            ],
+            context: context()->withQuiet(),
+        );
+    } finally {
+        unlink($page);
+    }
+
+    io()->success('public/img/social-image.png');
+}

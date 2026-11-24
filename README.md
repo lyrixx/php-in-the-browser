@@ -33,6 +33,10 @@ slides work without Docker and without network, on the day of the talk.
 Without `public/build/`, the slides still work: the live outputs show what PHP
 printed when they were written.
 
+A link to the slides shows `public/img/social-image.png`, their title slide:
+`castor slides:social-image` renders it again, with Chrome, after a change of
+that slide.
+
 The Symfony of the slide `sf-live` is the example of the website, in an iframe:
 it starts loading with its chapter. Without network, the slide keeps a
 screenshot, `public/img/symfony.png`. Once clicked, the iframe keeps the
